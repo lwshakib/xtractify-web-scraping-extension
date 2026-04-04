@@ -84,19 +84,60 @@ export default function App() {
     return () => chrome.runtime.onMessage.removeListener(listener)
   }, [fields.length])
 
+  const sendMessageToTab = async (tabId: number, message: any) => {
+    try {
+      const tab = await chrome.tabs.get(tabId)
+      if (!tab.url) throw new Error('No URL found')
+      
+      const restrictedPrefixes = ['chrome://', 'chrome-extension://', 'edge://', 'about:', 'https://chrome.google.com/webstore']
+      if (restrictedPrefixes.some(prefix => tab.url?.startsWith(prefix))) {
+        throw new Error('RESTRICTED_URL')
+      }
+
+      // 1. Try to Ping
+      try {
+        const pingResponse = await chrome.tabs.sendMessage(tabId, { type: 'PING' })
+        if (pingResponse?.status === 'PONG') {
+          return await chrome.tabs.sendMessage(tabId, message)
+        }
+      } catch (e) {
+        // Ping failed, continue to injection
+      }
+
+      // 2. Inject if missing
+      await chrome.scripting.executeScript({
+        target: { tabId },
+        files: ['src/content/main.tsx']
+      })
+
+      // 3. Retry message
+      return await chrome.tabs.sendMessage(tabId, message)
+    } catch (err: any) {
+      if (err.message === 'RESTRICTED_URL') {
+        alert('Browser security prevents scraping on this page (Settings, Extensions, or Web Store). Please try a different website.')
+        throw err
+      }
+      throw err
+    }
+  }
+
   const toggleSelection = async () => {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
       if (!tab?.id) return
 
       if (isSelecting) {
-        await chrome.tabs.sendMessage(tab.id, { type: 'STOP_SELECTION' })
+        await sendMessageToTab(tab.id, { type: 'STOP_SELECTION' })
       } else {
         setIsSelectingParent(false) // Stop other modes
-        await chrome.tabs.sendMessage(tab.id, { type: 'START_SELECTION', payload: { parentSelector } })
+        await sendMessageToTab(tab.id, { type: 'START_SELECTION', payload: { parentSelector } })
       }
       setIsSelecting(!isSelecting)
     } catch (err) {
+      if ((err as Error).message === 'RESTRICTED_URL') {
+        setIsSelecting(false)
+        return
+      }
       console.error('Xtractify: Connection failed', err)
       alert('Could not connect to the page. Please refresh the page being scraped and try again.')
       setIsSelecting(false)
@@ -109,13 +150,17 @@ export default function App() {
       if (!tab?.id) return
 
       if (isSelectingParent) {
-        await chrome.tabs.sendMessage(tab.id, { type: 'STOP_SELECTION' })
+        await sendMessageToTab(tab.id, { type: 'STOP_SELECTION' })
       } else {
         setIsSelecting(false) // Stop other modes
-        await chrome.tabs.sendMessage(tab.id, { type: 'START_PARENT_SELECTION' })
+        await sendMessageToTab(tab.id, { type: 'START_PARENT_SELECTION' })
       }
       setIsSelectingParent(!isSelectingParent)
     } catch (err) {
+      if ((err as Error).message === 'RESTRICTED_URL') {
+        setIsSelectingParent(false)
+        return
+      }
       console.error('Xtractify: Connection failed', err)
       alert('Could not connect to the page. Please refresh the page being scraped and try again.')
       setIsSelectingParent(false)
@@ -131,7 +176,7 @@ export default function App() {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
       if (!tab?.id) return
 
-      const response = await chrome.tabs.sendMessage(tab.id, {
+      const response = await sendMessageToTab(tab.id, {
         type: 'EXTRACT_DATA',
         payload: { fields, parentSelector }
       })

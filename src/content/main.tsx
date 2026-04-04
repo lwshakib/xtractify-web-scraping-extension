@@ -109,12 +109,8 @@ function findNearbyLink(el: HTMLElement, maxDepth: number = 3): HTMLAnchorElemen
 
 function extractElementValue(el: HTMLElement, extractMode: 'url' | 'text' = 'url'): string {
   if (extractMode === 'url') {
-    // If clicking a sub-element of a link, get the link URL
-    const anchor = el.closest('a')
-    if (anchor) return anchor.href
-
-    // If clicking a sub-element of an image, get the image URL
-    const img = el.closest('img') || el.querySelector('img')
+    // 1. If clicking an image or its sub-element, get the image URL
+    const img = el instanceof HTMLImageElement ? el : (el.closest('img') || el.querySelector('img'))
     if (img) {
       if (img.srcset) {
         const sources = img.srcset.split(',').map(s => s.trim().split(' '))
@@ -132,6 +128,10 @@ function extractElementValue(el: HTMLElement, extractMode: 'url' | 'text' = 'url
       const source = el.parentElement.querySelector('source')
       if (source?.srcset) return source.srcset.split(',')[0].split(' ')[0]
     }
+
+    // 2. If clicking a sub-element of a link (and not an image), get the link URL
+    const anchor = el.closest('a')
+    if (anchor) return anchor.href
   }
 
   // Text Mode extraction
@@ -227,6 +227,11 @@ function handleClick(e: MouseEvent) {
 }
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type === 'PING') {
+    sendResponse({ status: 'PONG' })
+    return true
+  }
+
   if (message.type === 'START_SELECTION' || message.type === 'START_PARENT_SELECTION') {
     isSelecting = true
     selectionMode = message.type === 'START_PARENT_SELECTION' ? 'parent' : 'field'
