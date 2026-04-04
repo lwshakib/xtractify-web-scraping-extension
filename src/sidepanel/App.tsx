@@ -19,6 +19,8 @@ export default function App() {
   const [isSelecting, setIsSelecting] = useState(false)
   const [fields, setFields] = useState<Field[]>([])
   const [results, setResults] = useState<ExtractionResult[]>([])
+  const [showExamples, setShowExamples] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(10)
 
   const generateFieldName = (selector: string, text: string): string => {
     // Try to extract name from classes at the end of the selector
@@ -89,6 +91,8 @@ export default function App() {
 
     if (response?.results) {
       setResults(response.results)
+      setShowExamples(false)
+      setVisibleCount(10)
     }
   }
 
@@ -124,14 +128,16 @@ export default function App() {
     const docs = []
     
     for (let i = 0; i < maxLength; i++) {
-      const doc = results.map(r => ({
-        name: r.name,
-        value: r.values[i] || ''
-      }))
+      const doc: Record<string, string> = {}
+      results.forEach(r => {
+        doc[r.name] = r.values[i] || ''
+      })
       docs.push(doc)
     }
     return docs
   }
+
+  const totalRecords = results.length > 0 ? Math.max(...results.map(r => r.values.length)) : 0
 
   return (
     <div className="app-container">
@@ -154,7 +160,7 @@ export default function App() {
           <h3>Selected Fields ({fields.length})</h3>
           <div className="fields-list">
             {fields.map(field => (
-              <div key={field.id} className="field-card glass">
+              <div key={field.id} className="field-card">
                 <div className="field-info">
                   <input 
                     type="text" 
@@ -190,24 +196,55 @@ export default function App() {
 
             {results.length > 0 && (
               <div className="results-container">
-                <div className="results-header">
-                  <h3>Example Results (First 10)</h3>
-                  <button className="btn-download" onClick={downloadCSV}>
+                <div className="results-header-summary">
+                  <div className="summary-info">
+                    <span className="summary-label">Extracted</span>
+                    <span className="summary-value">{totalRecords} records</span>
+                  </div>
+                  <button className="btn-download-small" onClick={downloadCSV}>
                     Download CSV
                   </button>
                 </div>
-                <div className="documents-list">
-                  {getDocuments().slice(0, 10).map((doc, idx) => (
-                    <div key={idx} className="document-card glass">
-                      <div className="doc-num">Document {idx + 1}</div>
-                      {doc.map((field, fIdx) => (
-                        <div key={fIdx} className="doc-field">
-                          <span className="doc-label">{field.name}:</span>
-                          <span className="doc-value">{field.value}</span>
-                        </div>
-                      ))}
+
+                <div className="examples-accordion">
+                  <button 
+                    className="btn-toggle-examples"
+                    onClick={() => setShowExamples(!showExamples)}
+                  >
+                    {showExamples ? 'Hide Examples ↑' : 'See Examples ↓'}
+                  </button>
+
+                  {showExamples && (
+                    <div className="table-container fade-in">
+                      <table className="results-table">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            {results.map(r => <th key={r.id}>{r.name}</th>)}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {getDocuments().slice(0, visibleCount).map((doc, idx) => (
+                            <tr key={idx}>
+                              <td>{idx + 1}</td>
+                              {results.map(r => <td key={r.id}>{doc[r.name]}</td>)}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <div className="table-footer">
+                        <span>Showing {Math.min(visibleCount, totalRecords)} of {totalRecords} items</span>
+                        {visibleCount < totalRecords && (
+                          <button 
+                            className="btn-load-more" 
+                            onClick={() => setVisibleCount(prev => prev + 10)}
+                          >
+                            Load More 10 +
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             )}

@@ -5,9 +5,10 @@ let isSelecting = false
 const highlightStyle = document.createElement('style')
 highlightStyle.textContent = `
   .xtractify-highlight {
-    outline: 2px solid #3b82f6 !important;
-    outline-offset: -2px !important;
+    outline: 3px solid #10b981 !important;
+    outline-offset: -3px !important;
     cursor: crosshair !important;
+    transition: outline 0.1s ease !important;
   }
 `
 document.head.appendChild(highlightStyle)
