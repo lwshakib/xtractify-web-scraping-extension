@@ -199,9 +199,7 @@ export default function App() {
           })
         })
         
-        if (addedCount === 0) {
-          alert('All extracted data from this page are already recorded (Duplicates omitted).')
-        } else {
+        if (addedCount > 0) {
           setShowExamples(true)
         }
       }
