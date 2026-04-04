@@ -6,6 +6,7 @@ interface Field {
   name: string
   selector: string
   relativeSelector?: string
+  childIndex?: number
   preview: string
   matchCount: number
 }
@@ -20,6 +21,7 @@ export default function App() {
   const [isSelecting, setIsSelecting] = useState(false)
   const [isSelectingParent, setIsSelectingParent] = useState(false)
   const [parentSelector, setParentSelector] = useState<string | null>(null)
+  const [parentCount, setParentCount] = useState<number | null>(null)
   const [fields, setFields] = useState<Field[]>([])
   const [results, setResults] = useState<ExtractionResult[]>([])
   const [showExamples, setShowExamples] = useState(false)
@@ -48,20 +50,22 @@ export default function App() {
   useEffect(() => {
     const listener = (message: any) => {
       if (message.type === 'ELEMENT_SELECTED') {
-        const { selector, relativeSelector, text, matchCount } = message.payload
+        const { selector, relativeSelector, childIndex, text, matchCount } = message.payload
         
         const newField: Field = {
           id: crypto.randomUUID(),
           name: generateFieldName(selector, text),
           selector,
           relativeSelector,
+          childIndex,
           preview: text,
           matchCount: matchCount || 0
         }
         setFields(prev => [...prev, newField])
       } else if (message.type === 'PARENT_SELECTED') {
-        const { selector } = message.payload
+        const { selector, matchCount } = message.payload
         setParentSelector(selector)
+        setParentCount(matchCount)
         setIsSelectingParent(false)
       }
     }
@@ -197,9 +201,17 @@ export default function App() {
           
           {parentSelector && (
             <div className="parent-info-card">
-              <span className="parent-label">Item Container:</span>
+              <div className="parent-meta-row">
+                <span className="parent-label">Item Container:</span>
+                {parentCount !== null && (
+                  <span className="parent-count-badge">{parentCount} containers found</span>
+                )}
+              </div>
               <span className="parent-selector">{parentSelector}</span>
-              <button className="btn-clear" onClick={() => setParentSelector(null)}>×</button>
+              <button className="btn-clear" onClick={() => {
+                setParentSelector(null)
+                setParentCount(null)
+              }}>×</button>
             </div>
           )}
         </section>

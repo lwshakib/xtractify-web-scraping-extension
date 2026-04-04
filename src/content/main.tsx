@@ -24,9 +24,30 @@ function handleMouseOver(e: MouseEvent) {
   currentMatches.forEach(el => el.classList.remove('xtractify-highlight'))
   
   const selector = getGeneralSelector(target)
-  const matches = Array.from(document.querySelectorAll(selector)) as HTMLElement[]
+  let matches: HTMLElement[] = []
+
+  if (selectionMode === 'field' && activeParentSelector) {
+    const parent = target.closest(activeParentSelector) as HTMLElement
+    if (parent) {
+      const parentMatches = Array.from(parent.querySelectorAll(selector))
+      const childIndex = parentMatches.indexOf(target)
+      
+      if (childIndex !== -1) {
+        const allParents = Array.from(document.querySelectorAll(activeParentSelector))
+        allParents.forEach(p => {
+          const peers = p.querySelectorAll(selector)
+          if (peers[childIndex]) {
+            matches.push(peers[childIndex] as HTMLElement)
+          }
+        })
+      }
+    }
+  } else {
+    // Parent selection mode or no active parent: highlight all matches globally
+    matches = Array.from(document.querySelectorAll(selector)) as HTMLElement[]
+  }
   
-  matches.slice(0, 200).forEach(el => el.classList.add('xtractify-highlight'))
+  matches.slice(0, 400).forEach(el => el.classList.add('xtractify-highlight'))
   currentMatches = matches
 }
 
@@ -73,7 +94,6 @@ function extractElementValue(el: HTMLElement): string {
     return el.href || ''
   }
 
-  // Check for picture source if it's a child of picture
   if (el.parentElement instanceof HTMLPictureElement) {
     const source = el.parentElement.querySelector('source')
     if (source?.srcset) return source.srcset.split(',')[0].split(' ')[0]
@@ -88,7 +108,6 @@ function handleClick(e: MouseEvent) {
 
   const target = e.target as HTMLElement
   const selector = getGeneralSelector(target)
-  const elements = document.querySelectorAll(selector)
   
   let text = ''
   if (target instanceof HTMLImageElement) {
@@ -98,14 +117,38 @@ function handleClick(e: MouseEvent) {
   }
 
   if (selectionMode === 'parent') {
+    const elements = document.querySelectorAll(selector)
     chrome.runtime.sendMessage({
       type: 'PARENT_SELECTED',
-      payload: { selector }
+      payload: { 
+        selector,
+        matchCount: elements.length
+      }
     })
   } else {
     let relativeSelector: string | undefined = undefined
+    let childIndex: number = 0
+    let matchCount: number = 0
+
     if (activeParentSelector) {
-      relativeSelector = getRelativeSelector(target, activeParentSelector)
+      const parent = target.closest(activeParentSelector) as HTMLElement
+      const allContainers = Array.from(document.querySelectorAll(activeParentSelector))
+      
+      if (parent) {
+        relativeSelector = getRelativeSelector(target, activeParentSelector)
+        if (relativeSelector) {
+          const peers = Array.from(parent.querySelectorAll(relativeSelector))
+          childIndex = peers.indexOf(target)
+          
+          // Accurate count: how many containers actually have an element at this index?
+          allContainers.forEach(container => {
+            const matches = container.querySelectorAll(relativeSelector!)
+            if (matches[childIndex]) matchCount++
+          })
+        }
+      }
+    } else {
+      matchCount = document.querySelectorAll(selector).length
     }
 
     chrome.runtime.sendMessage({
@@ -113,8 +156,9 @@ function handleClick(e: MouseEvent) {
       payload: { 
         selector, 
         relativeSelector,
+        childIndex,
         text,
-        matchCount: elements.length
+        matchCount
       }
     })
   }
@@ -155,7 +199,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         id: field.id,
         name: field.name,
         values: parents.map(p => {
-          const el = p.querySelector(field.relativeSelector || field.selector) as HTMLElement
+          const matches = p.querySelectorAll(field.relativeSelector || field.selector)
+          const el = matches[field.childIndex || 0] as HTMLElement
           return el ? extractElementValue(el) : ''
         })
       }))
