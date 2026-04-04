@@ -339,60 +339,53 @@ body {
   cursor: pointer;
 }
 
-.records-list {
+.extraction-section {
+  margin-top: 20px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.results-container {
   width: 100%;
 }
 
-.record-card {
-  background: var(--card-bg);
+.table-container {
+  overflow-x: auto;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  background: var(--card-bg);
   width: 100%;
+  max-width: 100%;
+  margin-top: 8px;
 }
 
-.record-index {
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  table-layout: auto;
+}
+
+.results-table th {
   background: var(--input-bg);
-  padding: 6px 12px;
-  font-size: 0.65rem;
-  font-weight: 700;
+  text-align: left;
+  padding: 10px 12px;
   color: var(--text-secondary);
+  font-weight: 600;
   border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
 }
 
-.record-fields {
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.record-field {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.record-field-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.record-field-value {
-  font-size: 0.8rem;
+.results-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
-  line-height: 1.5;
-  word-break: break-all;
-  white-space: pre-wrap;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .table-footer {
@@ -403,11 +396,25 @@ body {
   font-size: 0.7rem;
   color: var(--text-secondary);
   background: var(--input-bg);
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-color);
   flex-wrap: wrap;
   gap: 12px;
   width: 100%;
+}
+
+.record-field-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: none; /* Removed uppercase */
+  letter-spacing: normal;
+}
+
+.summary-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: none; /* Removed uppercase */
 }
 
 .parent-info-card {

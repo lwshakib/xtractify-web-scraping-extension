@@ -274,20 +274,23 @@ export default function App() {
                   </button>
 
                   {showExamples && (
-                    <div className="records-list fade-in">
-                      {getDocuments().slice(0, visibleCount).map((doc, idx) => (
-                        <div key={idx} className="record-card">
-                          <div className="record-index">Record #{idx + 1}</div>
-                          <div className="record-fields">
-                            {results.map(r => (
-                              <div key={r.id} className="record-field">
-                                <span className="record-field-label">{r.name}</span>
-                                <span className="record-field-value">{doc[r.name]}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
+                    <div className="table-container fade-in">
+                      <table className="results-table">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            {results.map(r => <th key={r.id}>{r.name}</th>)}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {getDocuments().slice(0, visibleCount).map((doc, idx) => (
+                            <tr key={idx}>
+                              <td>{idx + 1}</td>
+                              {results.map(r => <td key={r.id}>{doc[r.name]}</td>)}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                       <div className="table-footer">
                         <span>Showing {Math.min(visibleCount, totalRecords)} of {totalRecords} items</span>
                         {visibleCount < totalRecords && (
