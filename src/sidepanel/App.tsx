@@ -67,7 +67,7 @@ export default function App() {
           preview: text,
           matchCount: matchCount || 0,
           elementType,
-          extractMode: elementType === 'text' ? 'text' : 'url',
+          extractMode: 'text' as const, // Always default to text
           previewUrl,
           previewText
         }
@@ -282,6 +282,8 @@ export default function App() {
             <button 
               className={`btn-primary ${isSelecting ? 'active' : ''}`}
               onClick={toggleSelection}
+              disabled={!parentSelector}
+              title={!parentSelector ? "Set an Item Container first to select fields" : ""}
             >
               {isSelecting ? 'Stop Selecting Fields' : 'Select Fields'}
             </button>
@@ -299,48 +301,85 @@ export default function App() {
               <button className="btn-clear" onClick={() => {
                 setParentSelector(null)
                 setParentCount(null)
+                setFields([])
               }}>×</button>
             </div>
           )}
         </section>
 
         <section className="fields-section">
+
           <h3>Selected Fields ({fields.length})</h3>
           <div className="fields-list">
             {fields.map(field => (
               <div key={field.id} className="field-card">
                 <div className="field-info">
-                  <input 
-                    type="text" 
-                    value={field.name}
-                    onChange={(e) => {
-                      const newFields = fields.map(f => f.id === field.id ? { ...f, name: e.target.value } : f)
-                      setFields(newFields)
-                    }}
-                  />
+                  <div className="field-header">
+                    <input 
+                      type="text" 
+                      className="field-name-edit"
+                      value={field.name}
+                      onChange={(e) => {
+                        const newFields = fields.map(f => f.id === field.id ? { ...f, name: e.target.value } : f)
+                        setFields(newFields)
+                      }}
+                    />
+                    <div className="field-actions">
+                      {(field.elementType === 'image' || field.elementType === 'link') && (
+                        <button 
+                          className="btn-icon" 
+                          title="Extract Other Mode"
+                          onClick={() => {
+                            const otherMode: 'url' | 'text' = field.extractMode === 'url' ? 'text' : 'url'
+                            const newField: Field = {
+                              ...field,
+                              id: crypto.randomUUID(),
+                              name: `${field.name} ${otherMode === 'url' ? 'URL' : 'Text'}`,
+                              extractMode: otherMode,
+                              preview: otherMode === 'url' ? field.previewUrl || '' : field.previewText || ''
+                            }
+                            setFields(prev => [...prev, newField])
+                          }}
+                        >
+                          ⇋
+                        </button>
+                      )}
+                      <button className="btn-delete" onClick={() => removeField(field.id)} title="Delete Field">×</button>
+                    </div>
+                  </div>
+                  
                   <div className="field-meta">
                     <span className={`match-badge ${field.matchCount > 200 ? 'warning' : ''}`}>
-                      {field.matchCount} items
+                      {field.matchCount} matched
                     </span>
-                    <span className="selector-text">{field.relativeSelector || field.selector}</span>
                     {(field.elementType === 'image' || field.elementType === 'link') && (
-                      <select 
-                        style={{ fontSize: '0.7rem', padding: '2px 4px', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none' }}
-                        value={field.extractMode} 
-                        onChange={(e) => {
-                          const val = e.target.value as 'url' | 'text';
-                          const newFields = fields.map(f => f.id === field.id ? { ...f, extractMode: val } : f)
-                          setFields(newFields)
-                        }}
-                      >
-                        <option value="url">URL</option>
-                        <option value="text">Text</option>
-                      </select>
+                      <div className="mode-toggle">
+                        <button 
+                          className={`mode-btn ${field.extractMode === 'text' ? 'active' : ''}`}
+                          onClick={() => {
+                            const newFields = fields.map(f => f.id === field.id ? { ...f, extractMode: 'text' as const } : f)
+                            setFields(newFields)
+                          }}
+                        >
+                          Text
+                        </button>
+                        <button 
+                          className={`mode-btn ${field.extractMode === 'url' ? 'active' : ''}`}
+                          onClick={() => {
+                            const newFields = fields.map(f => f.id === field.id ? { ...f, extractMode: 'url' as const } : f)
+                            setFields(newFields)
+                          }}
+                        >
+                          URL
+                        </button>
+                      </div>
                     )}
                   </div>
-                  <span className="preview-text">Sample: "{(field.elementType === 'image' || field.elementType === 'link') ? (field.extractMode === 'text' ? field.previewText : field.previewUrl) : field.preview}"</span>
+                  <span className="selector-text">{field.relativeSelector || field.selector}</span>
+                  <p className="field-preview-value">
+                    Sample: <span>{(field.elementType === 'image' || field.elementType === 'link') ? (field.extractMode === 'text' ? field.previewText : field.previewUrl) : field.preview}</span>
+                  </p>
                 </div>
-                <button className="btn-delete" onClick={() => removeField(field.id)}>×</button>
               </div>
             ))}
             {fields.length === 0 && (

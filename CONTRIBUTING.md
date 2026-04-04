@@ -65,5 +65,6 @@ Our maintainers will review your pull request shortly!
 - Please make sure the code passes any linting or type checking. 
 - Try to follow the same formatting as the existing files.
 - We use Vite and React; kindly stick to modern React patterns.
+- **Context Discovery**: When modifying selection logic in `src/content/main.tsx`, ensure the `findNearbyLink` function is tested across different DOM structures (nested labels, overlays, etc.) to maintain the 6-level depth search integrity.
 
 We are so glad to have you here — Happy Scraping!

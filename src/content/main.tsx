@@ -76,30 +76,71 @@ function getRelativeSelector(el: HTMLElement, parentSelector: string): string | 
   return `${tagName}${classList}`
 }
 
-function extractElementValue(el: HTMLElement, extractMode: 'url' | 'text' = 'url'): string {
-  if (el instanceof HTMLImageElement) {
-    if (extractMode === 'text') return el.alt || ''
-    if (el.srcset) {
-      const sources = el.srcset.split(',').map(s => s.trim().split(' '))
-      const bestSource = sources.reduce((prev, curr) => {
-        const prevVal = prev[1] ? parseInt(prev[1]) : 0
-        const currVal = curr[1] ? parseInt(curr[1]) : 0
-        return currVal > prevVal ? curr : prev
-      })
-      return bestSource[0]
+function findNearbyLink(el: HTMLElement, maxDepth: number = 3): HTMLAnchorElement | null {
+  // 1. Check self
+  if (el instanceof HTMLAnchorElement && el.href) return el
+
+  // 2. Check children (recursive search up to maxDepth)
+  function searchChildren(parent: HTMLElement, currentDepth: number): HTMLAnchorElement | null {
+    if (currentDepth > maxDepth) return null
+    for (const child of Array.from(parent.children)) {
+      if (child instanceof HTMLAnchorElement && child.href) return child
+      const found = searchChildren(child as HTMLElement, currentDepth + 1)
+      if (found) return found
     }
-    return el.src || ''
+    return null
   }
-  
-  if (el instanceof HTMLAnchorElement) {
-    if (extractMode === 'text') return el.innerText.trim()
-    return el.href || ''
+  const childLink = searchChildren(el, 1)
+  if (childLink) return childLink
+
+  // 3. Check parents up to maxDepth
+  let currentParent = el.parentElement
+  let depth = 1
+  while (currentParent && depth <= maxDepth) {
+    if (currentParent instanceof HTMLAnchorElement && currentParent.href) return currentParent
+    // Also check immediate siblings of parents? User said "3 depth parents, 3 depth children"
+    // Usually parents covers ancestors.
+    currentParent = currentParent.parentElement
+    depth++
   }
 
+  return null
+}
+
+function extractElementValue(el: HTMLElement, extractMode: 'url' | 'text' = 'url'): string {
+  if (extractMode === 'url') {
+    // If clicking a sub-element of a link, get the link URL
+    const anchor = el.closest('a')
+    if (anchor) return anchor.href
+
+    // If clicking a sub-element of an image, get the image URL
+    const img = el.closest('img') || el.querySelector('img')
+    if (img) {
+      if (img.srcset) {
+        const sources = img.srcset.split(',').map(s => s.trim().split(' '))
+        const bestSource = sources.reduce((prev, curr) => {
+          const prevVal = prev[1] ? parseInt(prev[1]) : 0
+          const currVal = curr[1] ? parseInt(curr[1]) : 0
+          return currVal > prevVal ? curr : prev
+        })
+        return bestSource[0]
+      }
+      return img.src || ''
+    }
+
+    if (el.parentElement instanceof HTMLPictureElement) {
+      const source = el.parentElement.querySelector('source')
+      if (source?.srcset) return source.srcset.split(',')[0].split(' ')[0]
+    }
+  }
+
+  // Text Mode extraction
+  if (el instanceof HTMLImageElement) {
+    return el.alt || ''
+  }
+  
   if (el.parentElement instanceof HTMLPictureElement) {
-    if (extractMode === 'text') return el.parentElement.querySelector('img')?.alt || ''
-    const source = el.parentElement.querySelector('source')
-    if (source?.srcset) return source.srcset.split(',')[0].split(' ')[0]
+    return el.parentElement.querySelector('img')?.alt || ''
   }
 
   return el.innerText.trim()
@@ -116,14 +157,17 @@ function handleClick(e: MouseEvent) {
   let previewUrl = ''
   let previewText = ''
 
-  if (target instanceof HTMLImageElement || (target.parentElement instanceof HTMLPictureElement)) {
+  const anchor = findNearbyLink(target, 3)
+  const img = target.closest('img') || target.closest('picture')?.querySelector('img')
+
+  if (img) {
     elementType = 'image'
-    previewUrl = extractElementValue(target, 'url')
-    previewText = extractElementValue(target, 'text')
-  } else if (target instanceof HTMLAnchorElement) {
+    previewUrl = extractElementValue(img, 'url')
+    previewText = extractElementValue(img, 'text')
+  } else if (anchor) {
     elementType = 'link'
-    previewUrl = extractElementValue(target, 'url')
-    previewText = extractElementValue(target, 'text')
+    previewUrl = anchor.href
+    previewText = target.innerText.trim() || anchor.innerText.trim()
   } else {
     elementType = 'text'
     const val = target.innerText.trim()
