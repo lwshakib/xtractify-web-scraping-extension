@@ -5,6 +5,7 @@ interface Field {
   id: string
   name: string
   selector: string
+  relativeSelector?: string
   preview: string
   matchCount: number
 }
@@ -17,13 +18,14 @@ interface ExtractionResult {
 
 export default function App() {
   const [isSelecting, setIsSelecting] = useState(false)
+  const [isSelectingParent, setIsSelectingParent] = useState(false)
+  const [parentSelector, setParentSelector] = useState<string | null>(null)
   const [fields, setFields] = useState<Field[]>([])
   const [results, setResults] = useState<ExtractionResult[]>([])
   const [showExamples, setShowExamples] = useState(false)
   const [visibleCount, setVisibleCount] = useState(10)
 
   const generateFieldName = (selector: string, text: string): string => {
-    // Try to extract name from classes at the end of the selector
     const parts = selector.split(' > ')
     const lastPart = parts[parts.length - 1]
     const classMatch = lastPart.match(/\.([\w-]+)/)
@@ -34,13 +36,11 @@ export default function App() {
         .replace(/\b\w/g, c => c.toUpperCase())
     }
 
-    // Fallback to tag name
     const tagMatch = lastPart.match(/^(\w+)/)
     if (tagMatch && !['div', 'span', 'p'].includes(tagMatch[1])) {
       return tagMatch[1].charAt(0).toUpperCase() + tagMatch[1].slice(1)
     }
 
-    // Final fallback to text snippet
     const words = text.split(/\s+/).slice(0, 2).join(' ')
     return words || `Field ${fields.length + 1}`
   }
@@ -48,15 +48,21 @@ export default function App() {
   useEffect(() => {
     const listener = (message: any) => {
       if (message.type === 'ELEMENT_SELECTED') {
-        const { selector, text, matchCount } = message.payload
+        const { selector, relativeSelector, text, matchCount } = message.payload
+        
         const newField: Field = {
           id: crypto.randomUUID(),
           name: generateFieldName(selector, text),
           selector,
+          relativeSelector,
           preview: text,
           matchCount: matchCount || 0
         }
         setFields(prev => [...prev, newField])
+      } else if (message.type === 'PARENT_SELECTED') {
+        const { selector } = message.payload
+        setParentSelector(selector)
+        setIsSelectingParent(false)
       }
     }
 
@@ -65,15 +71,41 @@ export default function App() {
   }, [fields.length])
 
   const toggleSelection = async () => {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-    if (!tab?.id) return
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+      if (!tab?.id) return
 
-    if (isSelecting) {
-      await chrome.tabs.sendMessage(tab.id, { type: 'STOP_SELECTION' })
-    } else {
-      await chrome.tabs.sendMessage(tab.id, { type: 'START_SELECTION' })
+      if (isSelecting) {
+        await chrome.tabs.sendMessage(tab.id, { type: 'STOP_SELECTION' })
+      } else {
+        setIsSelectingParent(false) // Stop other modes
+        await chrome.tabs.sendMessage(tab.id, { type: 'START_SELECTION', payload: { parentSelector } })
+      }
+      setIsSelecting(!isSelecting)
+    } catch (err) {
+      console.error('Xtractify: Connection failed', err)
+      alert('Could not connect to the page. Please refresh the page being scraped and try again.')
+      setIsSelecting(false)
     }
-    setIsSelecting(!isSelecting)
+  }
+
+  const toggleParentSelection = async () => {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+      if (!tab?.id) return
+
+      if (isSelectingParent) {
+        await chrome.tabs.sendMessage(tab.id, { type: 'STOP_SELECTION' })
+      } else {
+        setIsSelecting(false) // Stop other modes
+        await chrome.tabs.sendMessage(tab.id, { type: 'START_PARENT_SELECTION' })
+      }
+      setIsSelectingParent(!isSelectingParent)
+    } catch (err) {
+      console.error('Xtractify: Connection failed', err)
+      alert('Could not connect to the page. Please refresh the page being scraped and try again.')
+      setIsSelectingParent(false)
+    }
   }
 
   const removeField = (id: string) => {
@@ -81,18 +113,23 @@ export default function App() {
   }
 
   const extractData = async () => {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-    if (!tab?.id) return
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+      if (!tab?.id) return
 
-    const response = await chrome.tabs.sendMessage(tab.id, {
-      type: 'EXTRACT_DATA',
-      payload: { fields }
-    })
+      const response = await chrome.tabs.sendMessage(tab.id, {
+        type: 'EXTRACT_DATA',
+        payload: { fields, parentSelector }
+      })
 
-    if (response?.results) {
-      setResults(response.results)
-      setShowExamples(false)
-      setVisibleCount(10)
+      if (response?.results) {
+        setResults(response.results)
+        setShowExamples(false)
+        setVisibleCount(10)
+      }
+    } catch (err) {
+      console.error('Xtractify: Extraction failed', err)
+      alert('Extraction failed. Please refresh the page and try again.')
     }
   }
 
@@ -141,19 +178,30 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <header className="header">
-        <h1>Xtractify</h1>
-        <p>Bulk Smart Scraper</p>
-      </header>
-
       <main className="main">
         <section className="actions">
-          <button 
-            className={`btn-primary ${isSelecting ? 'active' : ''}`}
-            onClick={toggleSelection}
-          >
-            {isSelecting ? 'Stop Selecting' : 'Select Element'}
-          </button>
+          <div className="action-grid">
+            <button 
+              className={`btn-primary ${isSelectingParent ? 'active' : ''}`}
+              onClick={toggleParentSelection}
+            >
+              {isSelectingParent ? 'Stop Selecting Container' : 'Set Item Container'}
+            </button>
+            <button 
+              className={`btn-primary ${isSelecting ? 'active' : ''}`}
+              onClick={toggleSelection}
+            >
+              {isSelecting ? 'Stop Selecting Fields' : 'Select Fields'}
+            </button>
+          </div>
+          
+          {parentSelector && (
+            <div className="parent-info-card">
+              <span className="parent-label">Item Container:</span>
+              <span className="parent-selector">{parentSelector}</span>
+              <button className="btn-clear" onClick={() => setParentSelector(null)}>×</button>
+            </div>
+          )}
         </section>
 
         <section className="fields-section">
@@ -172,10 +220,9 @@ export default function App() {
                   />
                   <div className="field-meta">
                     <span className={`match-badge ${field.matchCount > 200 ? 'warning' : ''}`}>
-                      {field.matchCount} matches
-                      {field.matchCount > 200 && <span className="warning-icon" title="High match count - selection might be too broad">⚠️</span>}
+                      {field.matchCount} items
                     </span>
-                    <span className="selector-text">{field.selector}</span>
+                    <span className="selector-text">{field.relativeSelector || field.selector}</span>
                   </div>
                   <span className="preview-text">Sample: "{field.preview}"</span>
                 </div>
@@ -183,7 +230,7 @@ export default function App() {
               </div>
             ))}
             {fields.length === 0 && (
-              <div className="empty-state">No fields selected yet.</div>
+              <div className="empty-state">Select item container first, then fields.</div>
             )}
           </div>
         </section>
@@ -195,7 +242,7 @@ export default function App() {
             </button>
 
             {results.length > 0 && (
-              <div className="results-container">
+              <div className="results-container fade-in">
                 <div className="results-header-summary">
                   <div className="summary-info">
                     <span className="summary-label">Extracted</span>
@@ -215,23 +262,20 @@ export default function App() {
                   </button>
 
                   {showExamples && (
-                    <div className="table-container fade-in">
-                      <table className="results-table">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            {results.map(r => <th key={r.id}>{r.name}</th>)}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {getDocuments().slice(0, visibleCount).map((doc, idx) => (
-                            <tr key={idx}>
-                              <td>{idx + 1}</td>
-                              {results.map(r => <td key={r.id}>{doc[r.name]}</td>)}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    <div className="records-list fade-in">
+                      {getDocuments().slice(0, visibleCount).map((doc, idx) => (
+                        <div key={idx} className="record-card">
+                          <div className="record-index">Record #{idx + 1}</div>
+                          <div className="record-fields">
+                            {results.map(r => (
+                              <div key={r.id} className="record-field">
+                                <span className="record-field-label">{r.name}</span>
+                                <span className="record-field-value">{doc[r.name]}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
                       <div className="table-footer">
                         <span>Showing {Math.min(visibleCount, totalRecords)} of {totalRecords} items</span>
                         {visibleCount < totalRecords && (
@@ -239,7 +283,7 @@ export default function App() {
                             className="btn-load-more" 
                             onClick={() => setVisibleCount(prev => prev + 10)}
                           >
-                            Load More 10 +
+                            Load More
                           </button>
                         )}
                       </div>

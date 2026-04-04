@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 :root {
   /* Common */
   --accent-color: #10b981; /* Emerald-500 */
@@ -25,6 +29,25 @@
   }
 }
 
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -32,6 +55,9 @@ body {
   color: var(--text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+  overflow-x: hidden; /* Prevent body-level horizontal scroll */
 }
 
 .app-container {
@@ -39,45 +65,36 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
+  width: 100%;
 }
 
-/* Typography */
-.header h1 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
+.main {
+  width: 100%;
 }
 
-.header p {
-  margin: 2px 0 0;
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-  font-weight: 500;
+.action-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
 }
 
-/* Minimal Card */
-.card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-/* Buttons */
 .btn-primary {
   width: 100%;
-  padding: 10px;
+  padding: 10px 4px;
   border: none;
   border-radius: 6px;
   background: var(--text-primary);
   color: var(--bg-color);
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .btn-primary:hover {
@@ -92,12 +109,12 @@ body {
 
 .btn-secondary {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   border: 1px solid var(--accent-color);
   background: transparent;
   color: var(--accent-color);
-  border-radius: 6px;
-  font-weight: 600;
+  border-radius: 8px;
+  font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -108,18 +125,56 @@ body {
   color: white;
 }
 
-/* Sections */
-.fields-section h3 {
-  font-size: 0.85rem;
+/* Parent Info Card */
+.parent-info-card {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeIn 0.3s ease-out;
+  width: 100%;
+}
+
+.parent-label {
+  font-size: 0.65rem;
+  font-weight: 700;
   color: var(--text-secondary);
-  margin-bottom: 12px;
-  font-weight: 600;
+  white-space: nowrap;
+}
+
+.parent-selector {
+  font-family: monospace;
+  font-size: 0.65rem;
+  color: var(--accent-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.btn-clear {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.btn-clear:hover {
+  color: var(--danger-color);
 }
 
 .fields-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
 }
 
 .field-card {
@@ -130,6 +185,7 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 8px;
+  width: 100%;
 }
 
 .field-info {
@@ -137,6 +193,7 @@ body {
   flex-direction: column;
   gap: 6px;
   flex: 1;
+  min-width: 0; /* Important for ellipsis/wrapping in flex children */
 }
 
 .field-info input {
@@ -148,8 +205,12 @@ body {
   padding: 4px 8px;
   border-radius: 4px;
   outline: none;
-  width: fit-content;
-  min-width: 150px;
+  width: 100%;
+}
+
+.extraction-section {
+  margin-top: 32px;
+  width: 100%;
 }
 
 .field-meta {
@@ -157,6 +218,7 @@ body {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .match-badge {
@@ -167,6 +229,7 @@ body {
   border-radius: 4px;
   font-weight: 600;
   border: 1px solid var(--border-color);
+  white-space: nowrap;
 }
 
 .match-badge.warning {
@@ -190,6 +253,7 @@ body {
   border-left: 2px solid var(--accent-color);
   padding-left: 8px;
   line-height: 1.4;
+  word-break: break-word;
 }
 
 .btn-delete {
@@ -214,6 +278,7 @@ body {
   font-size: 0.8rem;
   border: 1px dashed var(--border-color);
   border-radius: 8px;
+  width: 100%;
 }
 
 /* Results Dashboard */
@@ -226,6 +291,9 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 8px;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .summary-label {
@@ -250,12 +318,14 @@ body {
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .examples-accordion {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
 }
 
 .btn-toggle-examples {
@@ -269,41 +339,60 @@ body {
   cursor: pointer;
 }
 
-.table-container {
-  overflow-x: auto;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: var(--card-bg);
-}
-
-.results-table {
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   width: 100%;
-  border-collapse: collapse;
-  font-size: 0.8rem;
 }
 
-.results-table th {
-  background: var(--input-bg);
-  text-align: left;
-  padding: 8px 12px;
-  color: var(--text-secondary);
-  font-weight: 600;
-  font-size: 0.75rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.results-table td {
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-primary);
-  max-width: 120px;
+.record-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
-tr:last-child td {
-  border-bottom: none;
+.record-index {
+  background: var(--input-bg);
+  padding: 6px 12px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.record-fields {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.record-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.record-field-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.record-field-value {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+  word-break: break-all;
+  white-space: pre-wrap;
 }
 
 .table-footer {
@@ -314,7 +403,36 @@ tr:last-child td {
   font-size: 0.7rem;
   color: var(--text-secondary);
   background: var(--input-bg);
-  border-top: 1px solid var(--border-color);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.parent-info-card {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeIn 0.3s ease-out;
+  width: 100%;
+  min-width: 0; /* Allow container to shrink */
+}
+
+.parent-selector {
+  font-family: monospace;
+  font-size: 0.65rem;
+  color: var(--accent-color);
+  word-break: break-all; /* Force wrap extremely long class names */
+  flex: 1;
+  min-width: 0;
+  white-space: normal;
+  line-height: 1.4;
 }
 
 .btn-load-more {
@@ -327,6 +445,7 @@ tr:last-child td {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .btn-load-more:hover {
