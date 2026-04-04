@@ -228,11 +228,27 @@ export default function App() {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.setAttribute('href', url)
-    link.setAttribute('download', `xtractify_data_${new Date().getTime()}.csv`)
+    link.setAttribute('download', `xtractify_csv_data_${new Date().getTime()}.csv`)
     link.style.visibility = 'hidden'
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
+  }
+
+  const downloadJSON = () => {
+    if (results.length === 0) return
+    const docs = getDocuments()
+    const jsonContent = JSON.stringify(docs, null, 2)
+    const blob = new Blob([jsonContent], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `xtractify_json_data_${new Date().getTime()}.json`
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
   }
 
   const getDocuments = () => {
@@ -365,6 +381,9 @@ export default function App() {
                     </button>
                     <button className="btn-download-small" onClick={downloadCSV}>
                       Download CSV
+                    </button>
+                    <button className="btn-download-small" onClick={downloadJSON} style={{ background: 'var(--text-primary)', color: 'var(--bg-color)' }}>
+                      Download JSON
                     </button>
                   </div>
                 </div>
