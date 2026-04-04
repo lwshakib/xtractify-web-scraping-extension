@@ -9,6 +9,10 @@ interface Field {
   childIndex?: number
   preview: string
   matchCount: number
+  elementType?: 'image' | 'link' | 'text'
+  extractMode?: 'url' | 'text'
+  previewUrl?: string
+  previewText?: string
 }
 
 interface ExtractionResult {
@@ -26,6 +30,7 @@ export default function App() {
   const [results, setResults] = useState<ExtractionResult[]>([])
   const [showExamples, setShowExamples] = useState(false)
   const [visibleCount, setVisibleCount] = useState(10)
+  const [hoveredImage, setHoveredImage] = useState<{ url: string, x: number, y: number } | null>(null)
 
   const generateFieldName = (selector: string, text: string): string => {
     const parts = selector.split(' > ')
@@ -50,7 +55,7 @@ export default function App() {
   useEffect(() => {
     const listener = (message: any) => {
       if (message.type === 'ELEMENT_SELECTED') {
-        const { selector, relativeSelector, childIndex, text, matchCount } = message.payload
+        const { selector, relativeSelector, childIndex, text, matchCount, elementType, previewUrl, previewText } = message.payload
         
         const newField: Field = {
           id: crypto.randomUUID(),
@@ -59,7 +64,11 @@ export default function App() {
           relativeSelector,
           childIndex,
           preview: text,
-          matchCount: matchCount || 0
+          matchCount: matchCount || 0,
+          elementType,
+          extractMode: elementType === 'text' ? 'text' : 'url',
+          previewUrl,
+          previewText
         }
         setFields(prev => [...prev, newField])
       } else if (message.type === 'PARENT_SELECTED') {
@@ -235,8 +244,22 @@ export default function App() {
                       {field.matchCount} items
                     </span>
                     <span className="selector-text">{field.relativeSelector || field.selector}</span>
+                    {(field.elementType === 'image' || field.elementType === 'link') && (
+                      <select 
+                        style={{ fontSize: '0.7rem', padding: '2px 4px', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none' }}
+                        value={field.extractMode} 
+                        onChange={(e) => {
+                          const val = e.target.value as 'url' | 'text';
+                          const newFields = fields.map(f => f.id === field.id ? { ...f, extractMode: val } : f)
+                          setFields(newFields)
+                        }}
+                      >
+                        <option value="url">URL</option>
+                        <option value="text">Text</option>
+                      </select>
+                    )}
                   </div>
-                  <span className="preview-text">Sample: "{field.preview}"</span>
+                  <span className="preview-text">Sample: "{(field.elementType === 'image' || field.elementType === 'link') ? (field.extractMode === 'text' ? field.previewText : field.previewUrl) : field.preview}"</span>
                 </div>
                 <button className="btn-delete" onClick={() => removeField(field.id)}>×</button>
               </div>
@@ -286,7 +309,21 @@ export default function App() {
                           {getDocuments().slice(0, visibleCount).map((doc, idx) => (
                             <tr key={idx}>
                               <td>{idx + 1}</td>
-                              {results.map(r => <td key={r.id}>{doc[r.name]}</td>)}
+                              {results.map(r => (
+                                <td 
+                                  key={r.id}
+                                  onMouseEnter={(e) => {
+                                    const val = doc[r.name]
+                                    if (typeof val === 'string' && (val.startsWith('http') || val.startsWith('data:image/'))) {
+                                      const rect = (e.target as HTMLElement).getBoundingClientRect()
+                                      setHoveredImage({ url: val, x: rect.left + rect.width / 2, y: rect.top })
+                                    }
+                                  }}
+                                  onMouseLeave={() => setHoveredImage(null)}
+                                >
+                                  {doc[r.name]}
+                                </td>
+                              ))}
                             </tr>
                           ))}
                         </tbody>
@@ -310,6 +347,39 @@ export default function App() {
           </section>
         )}
       </main>
+
+      {hoveredImage && (
+        <div style={{
+          position: 'fixed',
+          left: hoveredImage.x,
+          top: hoveredImage.y - 10,
+          transform: 'translate(-50%, -100%)',
+          backgroundColor: 'var(--card-bg)',
+          padding: '4px',
+          border: '1px solid var(--border-color)',
+          borderRadius: '4px',
+          zIndex: 9999,
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+          pointerEvents: 'none',
+          maxWidth: '200px'
+        }}>
+          <img 
+            src={hoveredImage.url} 
+            alt="Preview"
+            style={{ 
+              maxWidth: '100%', 
+              height: 'auto', 
+              display: 'block', 
+              borderRadius: '2px',
+              objectFit: 'contain'
+            }} 
+            onError={(e) => {
+              const parent = e.currentTarget.parentElement
+              if (parent) parent.style.display = 'none'
+            }}
+          />
+        </div>
+      )}
     </div>
   )
 }

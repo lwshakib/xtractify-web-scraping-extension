@@ -76,8 +76,9 @@ function getRelativeSelector(el: HTMLElement, parentSelector: string): string | 
   return `${tagName}${classList}`
 }
 
-function extractElementValue(el: HTMLElement): string {
+function extractElementValue(el: HTMLElement, extractMode: 'url' | 'text' = 'url'): string {
   if (el instanceof HTMLImageElement) {
+    if (extractMode === 'text') return el.alt || ''
     if (el.srcset) {
       const sources = el.srcset.split(',').map(s => s.trim().split(' '))
       const bestSource = sources.reduce((prev, curr) => {
@@ -91,10 +92,12 @@ function extractElementValue(el: HTMLElement): string {
   }
   
   if (el instanceof HTMLAnchorElement) {
+    if (extractMode === 'text') return el.innerText.trim()
     return el.href || ''
   }
 
   if (el.parentElement instanceof HTMLPictureElement) {
+    if (extractMode === 'text') return el.parentElement.querySelector('img')?.alt || ''
     const source = el.parentElement.querySelector('source')
     if (source?.srcset) return source.srcset.split(',')[0].split(' ')[0]
   }
@@ -109,11 +112,23 @@ function handleClick(e: MouseEvent) {
   const target = e.target as HTMLElement
   const selector = getGeneralSelector(target)
   
-  let text = ''
-  if (target instanceof HTMLImageElement) {
-    text = '[Image] ' + (target.alt || target.src.substring(0, 20))
+  let elementType: 'image' | 'link' | 'text' = 'text'
+  let previewUrl = ''
+  let previewText = ''
+
+  if (target instanceof HTMLImageElement || (target.parentElement instanceof HTMLPictureElement)) {
+    elementType = 'image'
+    previewUrl = extractElementValue(target, 'url')
+    previewText = extractElementValue(target, 'text')
+  } else if (target instanceof HTMLAnchorElement) {
+    elementType = 'link'
+    previewUrl = extractElementValue(target, 'url')
+    previewText = extractElementValue(target, 'text')
   } else {
-    text = target.innerText.trim().substring(0, 50) + (target.innerText.length > 50 ? '...' : '')
+    elementType = 'text'
+    const val = target.innerText.trim()
+    previewText = val.substring(0, 50) + (val.length > 50 ? '...' : '')
+    previewUrl = previewText
   }
 
   if (selectionMode === 'parent') {
@@ -157,7 +172,10 @@ function handleClick(e: MouseEvent) {
         selector, 
         relativeSelector,
         childIndex,
-        text,
+        text: previewUrl, // default text preview is url for images/links
+        previewUrl,
+        previewText,
+        elementType,
         matchCount
       }
     })
@@ -201,7 +219,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         values: parents.map(p => {
           const matches = p.querySelectorAll(field.relativeSelector || field.selector)
           const el = matches[field.childIndex || 0] as HTMLElement
-          return el ? extractElementValue(el) : ''
+          return el ? extractElementValue(el, field.extractMode || 'url') : ''
         })
       }))
       sendResponse({ results })
@@ -211,7 +229,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         return {
           id: field.id,
           name: field.name,
-          values: elements.map(el => extractElementValue(el))
+          values: elements.map(el => extractElementValue(el, field.extractMode || 'url'))
         }
       })
       sendResponse({ results })
