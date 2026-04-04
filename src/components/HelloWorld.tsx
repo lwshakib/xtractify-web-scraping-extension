@@ -3,7 +3,7 @@
  *
  * A simple React component used as part of the initial extension scaffold.
  * It demonstrates basic React state (useState) and prop usage.
- * 
+ *
  * Note: This component is currently used in the Popup UI (src/popup/App.tsx)
  * but is not part of the core scraping logic.
  */
@@ -19,27 +19,23 @@ export default function HelloWorld(props: { msg: string }) {
 
       <div className="card">
         <button type="button" onClick={() => setCount(count + 1)}>
-          count is
-          {' '}
-          {count}
+          count is {count}
         </button>
         <p>
           Edit
-          <code>src/components/HelloWorld.tsx</code>
-          {' '}
-          to test HMR (Hot Module Replacement)
+          <code>src/components/HelloWorld.tsx</code> to test HMR (Hot Module Replacement)
         </p>
       </div>
 
       <p>
         Check out
-        <a href="https://github.com/crxjs/create-crxjs" target="_blank" rel="noreferrer">create-crxjs</a>
+        <a href="https://github.com/crxjs/create-crxjs" target="_blank" rel="noreferrer">
+          create-crxjs
+        </a>
         , the official starter for CRXJS.
       </p>
 
-      <p className="read-the-docs">
-        Click on the Vite, React and CRXJS logos to learn more.
-      </p>
+      <p className="read-the-docs">Click on the Vite, React and CRXJS logos to learn more.</p>
     </>
   )
 }

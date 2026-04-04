@@ -15,6 +15,7 @@ chrome.runtime.onInstalled.addListener(() => {
   // Configure the side panel to open when the user clicks the extension's
   // action icon in the toolbar. Without this, the user would need to
   // manually open the side panel from the browser's side panel menu.
-  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
-    .catch((error) => console.error(error));
-});
+  chrome.sidePanel
+    .setPanelBehavior({ openPanelOnActionClick: true })
+    .catch((error) => console.error(error))
+})

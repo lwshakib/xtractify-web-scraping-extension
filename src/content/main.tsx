@@ -81,10 +81,10 @@ let currentMatches: HTMLElement[] = []
 function handleMouseOver(e: MouseEvent) {
   if (!isSelecting) return
   const target = e.target as HTMLElement
-  
+
   // Clear previous highlights before computing new ones.
-  currentMatches.forEach(el => el.classList.remove('xtractify-highlight'))
-  
+  currentMatches.forEach((el) => el.classList.remove('xtractify-highlight'))
+
   const selector = getGeneralSelector(target)
   let matches: HTMLElement[] = []
 
@@ -97,11 +97,11 @@ function handleMouseOver(e: MouseEvent) {
       const parentMatches = Array.from(parent.querySelectorAll(selector))
       // Determine the ordinal position of the hovered element among its peers.
       const childIndex = parentMatches.indexOf(target)
-      
+
       if (childIndex !== -1) {
         // Now replicate the selection across ALL parent containers at the same index.
         const allParents = Array.from(document.querySelectorAll(activeParentSelector))
-        allParents.forEach(p => {
+        allParents.forEach((p) => {
           const peers = p.querySelectorAll(selector)
           if (peers[childIndex]) {
             matches.push(peers[childIndex] as HTMLElement)
@@ -114,9 +114,9 @@ function handleMouseOver(e: MouseEvent) {
     // Highlight all global matches so the user can see every repeating container.
     matches = Array.from(document.querySelectorAll(selector)) as HTMLElement[]
   }
-  
+
   // Performance guard: limit to 400 highlights to avoid DOM thrashing.
-  matches.slice(0, 400).forEach(el => el.classList.add('xtractify-highlight'))
+  matches.slice(0, 400).forEach((el) => el.classList.add('xtractify-highlight'))
   currentMatches = matches
 }
 
@@ -128,8 +128,8 @@ function handleMouseOver(e: MouseEvent) {
 function handleMouseOut(e: MouseEvent) {
   if (!isSelecting) return
   if (e.relatedTarget === null) {
-     currentMatches.forEach(el => el.classList.remove('xtractify-highlight'))
-     currentMatches = []
+    currentMatches.forEach((el) => el.classList.remove('xtractify-highlight'))
+    currentMatches = []
   }
 }
 
@@ -164,8 +164,11 @@ function getRelativeSelector(el: HTMLElement, parentSelector: string): string | 
 
   const tagName = el.tagName.toLowerCase()
   // Filter out internal "xtractify-highlight" class to avoid polluting the selector.
-  const classList = Array.from(el.classList).filter(c => c !== 'xtractify-highlight').map(c => `.${c}`).join('')
-  
+  const classList = Array.from(el.classList)
+    .filter((c) => c !== 'xtractify-highlight')
+    .map((c) => `.${c}`)
+    .join('')
+
   return `${tagName}${classList}`
 }
 
@@ -234,12 +237,12 @@ function extractElementValue(el: HTMLElement, extractMode: 'url' | 'text' = 'url
   if (extractMode === 'url') {
     // --- URL Extraction: Images ---
     // Check if the element is (or contains) an <img>, and extract its best source.
-    const img = el instanceof HTMLImageElement ? el : (el.closest('img') || el.querySelector('img'))
+    const img = el instanceof HTMLImageElement ? el : el.closest('img') || el.querySelector('img')
     if (img) {
       if (img.srcset) {
         // Parse srcset and pick the highest-resolution source.
         // srcset format: "url1 1x, url2 2x" or "url1 300w, url2 600w"
-        const sources = img.srcset.split(',').map(s => s.trim().split(' '))
+        const sources = img.srcset.split(',').map((s) => s.trim().split(' '))
         const bestSource = sources.reduce((prev, curr) => {
           const prevVal = prev[1] ? parseInt(prev[1]) : 0
           const currVal = curr[1] ? parseInt(curr[1]) : 0
@@ -266,7 +269,7 @@ function extractElementValue(el: HTMLElement, extractMode: 'url' | 'text' = 'url
   if (el instanceof HTMLImageElement) {
     return el.alt || ''
   }
-  
+
   if (el.parentElement instanceof HTMLPictureElement) {
     return el.parentElement.querySelector('img')?.alt || ''
   }
@@ -295,7 +298,7 @@ function handleClick(e: MouseEvent) {
 
   const target = e.target as HTMLElement
   const selector = getGeneralSelector(target)
-  
+
   // Determine the semantic type of the clicked element for UI and extraction purposes.
   let elementType: 'image' | 'link' | 'text' = 'text'
   let previewUrl = ''
@@ -325,10 +328,10 @@ function handleClick(e: MouseEvent) {
     const elements = document.querySelectorAll(selector)
     chrome.runtime.sendMessage({
       type: 'PARENT_SELECTED',
-      payload: { 
+      payload: {
         selector,
-        matchCount: elements.length
-      }
+        matchCount: elements.length,
+      },
     })
   } else {
     // --- Field Selection (within a parent) ---
@@ -340,17 +343,17 @@ function handleClick(e: MouseEvent) {
       // Compute the field's position RELATIVE to the parent container.
       const parent = target.closest(activeParentSelector) as HTMLElement
       const allContainers = Array.from(document.querySelectorAll(activeParentSelector))
-      
+
       if (parent) {
         relativeSelector = getRelativeSelector(target, activeParentSelector)
         if (relativeSelector) {
           // Determine the ordinal index of this field among its peers within the container.
           const peers = Array.from(parent.querySelectorAll(relativeSelector))
           childIndex = peers.indexOf(target)
-          
+
           // Count how many containers actually have an element at this specific index.
           // This gives the user an accurate "X matched" count.
-          allContainers.forEach(container => {
+          allContainers.forEach((container) => {
             const matches = container.querySelectorAll(relativeSelector!)
             if (matches[childIndex]) matchCount++
           })
@@ -363,16 +366,16 @@ function handleClick(e: MouseEvent) {
 
     chrome.runtime.sendMessage({
       type: 'ELEMENT_SELECTED',
-      payload: { 
-        selector, 
+      payload: {
+        selector,
         relativeSelector,
         childIndex,
         text: previewUrl, // Default text preview carries the URL for images/links.
         previewUrl,
         previewText,
         elementType,
-        matchCount
-      }
+        matchCount,
+      },
     })
   }
 }
@@ -435,26 +438,26 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     document.removeEventListener('pointerdown', preventAll, true)
     document.removeEventListener('pointerup', preventAll, true)
     // Clean up any remaining visual highlights.
-    currentMatches.forEach(el => el.classList.remove('xtractify-highlight'))
+    currentMatches.forEach((el) => el.classList.remove('xtractify-highlight'))
     currentMatches = []
     sendResponse({ status: 'Selection stopped' })
   } else if (message.type === 'EXTRACT_DATA') {
     // --- Data Extraction ---
     const { fields, parentSelector } = message.payload
-    
+
     if (parentSelector) {
       // Scoped extraction: iterate over each parent container and extract per-row values.
       const parents = Array.from(document.querySelectorAll(parentSelector)) as HTMLElement[]
       const results = fields.map((field: any) => ({
         id: field.id,
         name: field.name,
-        values: parents.map(p => {
+        values: parents.map((p) => {
           // Use relativeSelector (scoped to parent) if available, fallback to global selector.
           const matches = p.querySelectorAll(field.relativeSelector || field.selector)
           // Pick the element at the same childIndex that was recorded during selection.
           const el = matches[field.childIndex || 0] as HTMLElement
           return el ? extractElementValue(el, field.extractMode || 'url') : ''
-        })
+        }),
       }))
       sendResponse({ results })
     } else {
@@ -464,7 +467,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         return {
           id: field.id,
           name: field.name,
-          values: elements.map(el => extractElementValue(el, field.extractMode || 'url'))
+          values: elements.map((el) => extractElementValue(el, field.extractMode || 'url')),
         }
       })
       sendResponse({ results })

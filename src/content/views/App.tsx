@@ -2,9 +2,9 @@
  * content/views/App.tsx
  *
  * This component provides an optional in-page UI for the content script.
- * Currently, it renders a small floating button in the bottom-right corner 
+ * Currently, it renders a small floating button in the bottom-right corner
  * of the page that toggles a simple "HELLO CRXJS" greeting.
- * 
+ *
  * Future use cases: This could be expanded to show extraction status or
  * quick-access tools directly on the target website without opening the sidepanel.
  */
