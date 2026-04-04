@@ -1,5 +1,7 @@
 {
   "name": "xtractify-web-scraping-extension",
+  "displayName": "Xtractify",
+  "description": "An AI-powered web scraping extension that simplifies data extraction from any website.",
   "type": "module",
   "version": "1.0.0",
   "private": true,
