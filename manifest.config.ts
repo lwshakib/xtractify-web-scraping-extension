@@ -6,6 +6,10 @@ export default defineManifest({
   name: pkg.displayName,
   description: pkg.description,
   version: pkg.version,
+  background: {
+    service_worker: 'src/background/index.ts',
+    type: 'module',
+  },
   icons: {
     16: 'public/icons/icon16.png',
     32: 'public/icons/icon32.png',
@@ -19,7 +23,6 @@ export default defineManifest({
       48: 'public/icons/icon48.png',
       128: 'public/icons/icon128.png',
     },
-    default_popup: 'src/popup/index.html',
   },
   permissions: [
     'sidePanel',
