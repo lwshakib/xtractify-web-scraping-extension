@@ -1,3 +1,11 @@
+/*
+ * src/sidepanel/index.css
+ *
+ * Global baseline styles for the Extension Sidepanel.
+ * Establishes typography (Inter/Sans-Serif) and full-height layout 
+ * ensuring the React application fills the available sidepanel space.
+ */
+
 :root {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
@@ -9,6 +17,7 @@
   box-sizing: border-box;
 }
 
+/* Ensure the application containers take up the full sidepanel height */
 html, body {
   margin: 0;
   padding: 0;

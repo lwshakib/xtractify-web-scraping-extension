@@ -1,23 +1,52 @@
+/*
+ * sidepanel/App.css — Xtractify Side Panel Design System
+ *
+ * This stylesheet defines the complete visual language for the Xtractify sidepanel UI.
+ * It uses CSS custom properties (variables) for a consistent, theme-aware design that
+ * automatically adapts between light and dark modes via `prefers-color-scheme`.
+ *
+ * Architecture:
+ * ┌─────────────────────────────────────┐
+ * │  :root variables (Design Tokens)    │  ← Color palette, spacing, typography
+ * │  Global resets & scrollbar          │  ← Box-sizing, body, scrollbar styling
+ * │  Layout (.app-container, .main)     │  ← Full-height flex column layout
+ * │  Action buttons (.btn-*)            │  ← Primary, secondary, icon, delete, clear
+ * │  Parent info card                   │  ← Container selector display
+ * │  Field cards                        │  ← Selected field display with accent bar
+ * │  Mode toggle                        │  ← Text/URL extract mode switcher
+ * │  Results dashboard                  │  ← Summary bar, download buttons
+ * │  Data table                         │  ← Extraction preview with pagination
+ * │  Animations                         │  ← fadeIn transition
+ * └─────────────────────────────────────┘
+ */
+
+/* ═══ Global Reset ═══ */
 * {
   box-sizing: border-box;
 }
 
+/* ═══ Design Tokens (CSS Custom Properties) ═══
+ * These variables form the design system's foundation.
+ * Light mode is the default; dark mode overrides via media query.
+ * Colors follow the Zinc palette from Tailwind with Emerald accent.
+ */
 :root {
-  /* Common */
-  --accent-color: #10b981; /* Emerald-500 */
-  --accent-hover: #059669; /* Emerald-600 */
-  --danger-color: #ef4444; /* Red-500 */
-  --warning-color: #f59e0b; /* Amber-500 */
+  /* Common (mode-independent) */
+  --accent-color: #10b981; /* Emerald-500 — primary brand / success color */
+  --accent-hover: #059669; /* Emerald-600 — hover state for accent */
+  --danger-color: #ef4444; /* Red-500 — destructive actions, active selection */
+  --warning-color: #f59e0b; /* Amber-500 — high match count warnings */
   
-  /* Default: Light Mode */
-  --bg-color: #fafafa; /* Zinc-50 */
-  --card-bg: #ffffff;
-  --text-primary: #09090b; /* Zinc-950 */
-  --text-secondary: #52525b; /* Zinc-600 */
-  --border-color: rgba(0, 0, 0, 0.08);
-  --input-bg: #f4f4f5; /* Zinc-100 */
+  /* Light Mode (default) */
+  --bg-color: #fafafa; /* Zinc-50 — page background */
+  --card-bg: #ffffff;   /* Card/panel surface */
+  --text-primary: #09090b; /* Zinc-950 — headings, primary text */
+  --text-secondary: #52525b; /* Zinc-600 — labels, muted text */
+  --border-color: rgba(0, 0, 0, 0.08); /* Subtle borders */
+  --input-bg: #f4f4f5; /* Zinc-100 — input backgrounds, badges */
 }
 
+/* Dark mode overrides — detected automatically via system preference */
 @media (prefers-color-scheme: dark) {
   :root {
     --bg-color: #09090b; /* Zinc-950 */
@@ -29,25 +58,16 @@
   }
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
+/* ═══ Custom Scrollbar ═══
+ * Thin, unobtrusive scrollbar that matches the theme.
+ * Uses both WebKit (Chrome) and standard (Firefox) properties.
+ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
-}
-
+/* ═══ Body & Root Layout ═══ */
 body {
   margin: 0;
   padding: 0;
@@ -55,11 +75,12 @@ body {
   color: var(--text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
-  scrollbar-width: thin;
+  scrollbar-width: thin; /* Firefox scrollbar */
   scrollbar-color: var(--border-color) transparent;
-  overflow-x: hidden; /* Prevent body-level horizontal scroll */
+  overflow-x: hidden;
 }
 
+/* Main app wrapper — vertical flex layout with consistent padding */
 .app-container {
   padding: 16px 12px;
   min-height: 100vh;
@@ -69,10 +90,11 @@ body {
   width: 100%;
 }
 
-.main {
-  width: 100%;
-}
+.main { width: 100%; }
 
+/* ═══ Action Buttons ═══ */
+
+/* Vertical stack for the two primary action buttons */
 .action-grid {
   display: flex;
   flex-direction: column;
@@ -80,6 +102,10 @@ body {
   width: 100%;
 }
 
+/* Primary buttons: "Set Item Container" and "Select Fields"
+ * Uses inverted colors (dark bg, light text) for high contrast.
+ * Turns red (.active) when selection mode is running.
+ */
 .btn-primary {
   width: 100%;
   padding: 10px 4px;
@@ -97,23 +123,11 @@ body {
   text-align: center;
 }
 
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-primary.active { background: var(--danger-color); color: white; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; background: var(--text-secondary); transform: none; }
 
-.btn-primary.active {
-  background: var(--danger-color);
-  color: white;
-}
-
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: var(--text-secondary);
-  transform: none;
-}
-
+/* Secondary button: "Extract Data" — outlined style with accent color */
 .btn-secondary {
   width: 100%;
   padding: 12px;
@@ -126,13 +140,12 @@ body {
   cursor: pointer;
   transition: all 0.15s ease;
 }
+.btn-secondary:hover { background: var(--accent-color); color: white; }
 
-.btn-secondary:hover {
-  background: var(--accent-color);
-  color: white;
-}
-
-/* Parent Info Card */
+/* ═══ Parent Container Info Card ═══
+ * Displays the selected parent selector and match count.
+ * Appears with a fade-in animation after selection.
+ */
 .parent-info-card {
   margin-top: 12px;
   padding: 10px 12px;
@@ -144,45 +157,34 @@ body {
   gap: 8px;
   animation: fadeIn 0.3s ease-out;
   width: 100%;
+  min-width: 0;
 }
 
-.parent-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
+.parent-label { font-size: 0.65rem; font-weight: 700; color: var(--text-secondary); white-space: nowrap; }
 
+/* Monospace display of the CSS selector — allows word-wrap for long class names */
 .parent-selector {
   font-family: monospace;
   font-size: 0.65rem;
   color: var(--accent-color);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  word-break: break-all;
   flex: 1;
+  min-width: 0;
+  white-space: normal;
+  line-height: 1.4;
 }
 
-.btn-clear {
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 1.2rem;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0 4px;
-}
+/* "×" clear button for the parent card */
+.btn-clear { background: transparent; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; line-height: 1; padding: 0 4px; }
+.btn-clear:hover { color: var(--danger-color); }
 
-.btn-clear:hover {
-  color: var(--danger-color);
-}
-
-.fields-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-}
+/* ═══ Field Cards ═══
+ * Each selected field is rendered as a card with:
+ * - A green left accent bar (::before pseudo-element)
+ * - Subtle hover animation (translateX + shadow)
+ * - Editable name, match badge, mode toggle, selector, and sample preview
+ */
+.fields-list { display: flex; flex-direction: column; gap: 12px; width: 100%; }
 
 .field-card {
   padding: 12px;
@@ -193,16 +195,24 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 8px;
   width: 100%;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
 }
 
-.field-info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
-  min-width: 0; /* Important for ellipsis/wrapping in flex children */
+.field-card:hover { transform: translateX(2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+/* Green accent bar on the left edge of each field card */
+.field-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--accent-color);
+  opacity: 0.4;
 }
 
+.field-info { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
 .field-info input {
   background: var(--input-bg);
   border: 1px solid var(--border-color);
@@ -215,387 +225,148 @@ body {
   width: 100%;
 }
 
-.extraction-section {
-  margin-top: 32px;
-  width: 100%;
-}
+/* Field card header: inline-editable name + action buttons */
+.field-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
 
-.field-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  width: 100%;
+/* Transparent inline name editor with focus underline */
+.field-name-edit {
+  background: transparent; border: none; border-bottom: 2px solid transparent;
+  color: var(--text-primary); font-weight: 700; font-size: 0.95rem;
+  padding: 4px 0; outline: none; transition: border-color 0.2s; flex: 1;
 }
+.field-name-edit:focus { border-bottom-color: var(--accent-color); }
 
+.field-actions { display: flex; gap: 6px; align-items: center; }
+
+/* Small icon button (e.g., the "⇋" extract mode toggle) */
+.btn-icon {
+  background: var(--input-bg); border: 1px solid var(--border-color);
+  color: var(--text-secondary); width: 28px; height: 28px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 1.1rem; transition: all 0.2s;
+}
+.btn-icon:hover { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+
+.extraction-section { margin-top: 20px; width: 100%; display: flex; flex-direction: column; gap: 16px; }
+
+/* Field metadata row: match badge + mode toggle */
+.field-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%; }
+
+/* Match count badge — turns amber for >200 matches (too broad) */
 .match-badge {
-  background: var(--input-bg);
-  color: var(--text-secondary);
-  font-size: 0.7rem;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: 600;
-  border: 1px solid var(--border-color);
-  white-space: nowrap;
+  background: var(--input-bg); color: var(--text-secondary);
+  font-size: 0.7rem; padding: 2px 8px; border-radius: 4px;
+  font-weight: 600; border: 1px solid var(--border-color); white-space: nowrap;
 }
+.match-badge.warning { color: var(--warning-color); border-color: var(--warning-color); background: rgba(245, 158, 11, 0.05); }
 
-.match-badge.warning {
-  color: var(--warning-color);
-  border-color: var(--warning-color);
-  background: rgba(245, 158, 11, 0.05);
-}
-
+/* CSS selector display — monospace, muted, wrappable */
 .selector-text {
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 0.65rem;
-  color: var(--text-secondary);
-  word-break: break-all;
-  flex: 1;
-  opacity: 0.7;
+  font-size: 0.65rem; color: var(--text-secondary);
+  word-break: break-all; flex: 1; opacity: 0.7;
 }
 
-.preview-text {
-  font-size: 0.7rem;
-  color: var(--text-secondary);
-  border-left: 2px solid var(--accent-color);
-  padding-left: 8px;
-  line-height: 1.4;
-  word-break: break-word;
-}
+.preview-text { font-size: 0.7rem; color: var(--text-secondary); border-left: 2px solid var(--accent-color); padding-left: 8px; line-height: 1.4; word-break: break-word; }
 
-.btn-delete {
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-  cursor: pointer;
-  padding: 0 4px;
-  opacity: 0.6;
-}
+.btn-delete { background: transparent; border: none; color: var(--text-secondary); font-size: 1.1rem; cursor: pointer; padding: 0 4px; opacity: 0.6; }
+.btn-delete:hover { color: var(--danger-color); opacity: 1; }
 
-.btn-delete:hover {
-  color: var(--danger-color);
-  opacity: 1;
-}
+.empty-state { text-align: center; padding: 32px 16px; color: var(--text-secondary); font-size: 0.8rem; border: 1px dashed var(--border-color); border-radius: 8px; width: 100%; }
 
-.empty-state {
-  text-align: center;
-  padding: 32px 16px;
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-  border: 1px dashed var(--border-color);
-  border-radius: 8px;
-  width: 100%;
+/* ═══ Text/URL Mode Toggle ═══
+ * Pill-shaped toggle for switching between text and URL extraction.
+ * Active button gets a raised card-like appearance.
+ */
+.mode-toggle {
+  display: flex; background: var(--input-bg); padding: 2px;
+  border-radius: 6px; border: 1px solid var(--border-color); margin-left: auto;
 }
+.mode-btn {
+  padding: 4px 10px; font-size: 0.65rem; font-weight: 700; border: none;
+  background: transparent; color: var(--text-secondary); border-radius: 4px;
+  cursor: pointer; transition: all 0.2s;
+}
+.mode-btn.active { background: var(--card-bg); color: var(--accent-color); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
 
-/* Results Dashboard */
+/* Sample value preview — accent-colored left border */
+.field-preview-value {
+  margin: 12px 0 0 0; font-size: 0.75rem; color: var(--text-secondary);
+  border-left: 3px solid var(--accent-color); padding-left: 10px; line-height: 1.5;
+}
+.field-preview-value span { color: var(--text-primary); font-weight: 500; word-break: break-all; display: inline-block; opacity: 0.8; }
+
+/* ═══ Results Dashboard ═══ */
+
+/* Summary bar: shows record count and download/clear buttons */
 .results-header-summary {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  margin-bottom: 16px;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  width: 100%;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px; margin-bottom: 16px; background: var(--card-bg);
+  border: 1px solid var(--border-color); border-radius: 8px;
+  width: 100%; flex-wrap: wrap; gap: 8px;
 }
+.summary-label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; text-transform: none; }
+.summary-value { font-size: 1rem; font-weight: 700; color: var(--accent-color); display: block; }
 
-.summary-label {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.summary-value {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--accent-color);
-  display: block;
-}
-
+/* Small action buttons (Download CSV, Download JSON, Clear) */
 .btn-download-small {
-  background: var(--accent-color);
-  border: none;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
+  background: var(--accent-color); border: none; color: white;
+  padding: 6px 12px; border-radius: 4px; font-size: 0.75rem;
+  font-weight: 600; cursor: pointer; white-space: nowrap;
 }
 
-.examples-accordion {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-}
-
+/* Collapsible examples accordion */
+.examples-accordion { display: flex; flex-direction: column; gap: 8px; width: 100%; }
 .btn-toggle-examples {
-  background: var(--input-bg);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  padding: 6px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
+  background: var(--input-bg); border: 1px solid var(--border-color);
+  color: var(--text-secondary); padding: 6px; border-radius: 4px;
+  font-size: 0.75rem; font-weight: 500; cursor: pointer;
 }
 
-.extraction-section {
-  margin-top: 20px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+.results-container { width: 100%; }
 
-.results-container {
-  width: 100%;
-}
-
+/* ═══ Data Preview Table ═══
+ * Horizontally scrollable table for extracted data preview.
+ * Cells are truncated with ellipsis to prevent layout overflow.
+ */
 .table-container {
-  overflow-x: auto;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--card-bg);
-  width: 100%;
-  max-width: 100%;
-  margin-top: 8px;
+  overflow-x: auto; border: 1px solid var(--border-color); border-radius: 8px;
+  background: var(--card-bg); width: 100%; max-width: 100%; margin-top: 8px;
 }
-
-.results-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.75rem;
-  table-layout: auto;
-}
-
+.results-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; table-layout: auto; }
 .results-table th {
-  background: var(--input-bg);
-  text-align: left;
-  padding: 10px 12px;
-  color: var(--text-secondary);
-  font-weight: 600;
-  border-bottom: 1px solid var(--border-color);
-  white-space: nowrap;
+  background: var(--input-bg); text-align: left; padding: 10px 12px;
+  color: var(--text-secondary); font-weight: 600;
+  border-bottom: 1px solid var(--border-color); white-space: nowrap;
 }
-
 .results-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-primary);
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  padding: 10px 12px; border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary); max-width: 200px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
 }
 
+/* Table footer with pagination — "Showing X of Y" + "Load More" button */
 .table-footer {
-  padding: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.7rem;
-  color: var(--text-secondary);
-  background: var(--input-bg);
-  border-top: 1px solid var(--border-color);
-  flex-wrap: wrap;
-  gap: 12px;
-  width: 100%;
+  padding: 12px; display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.7rem; color: var(--text-secondary); background: var(--input-bg);
+  border-top: 1px solid var(--border-color); flex-wrap: wrap; gap: 12px; width: 100%;
 }
 
-.record-field-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-transform: none; /* Removed uppercase */
-  letter-spacing: normal;
-}
-
-.summary-label {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-  text-transform: none; /* Removed uppercase */
-}
-
-.parent-info-card {
-  margin-top: 12px;
-  padding: 10px 12px;
-  background: var(--input-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  animation: fadeIn 0.3s ease-out;
-  width: 100%;
-  min-width: 0; /* Allow container to shrink */
-}
-
-.parent-selector {
-  font-family: monospace;
-  font-size: 0.65rem;
-  color: var(--accent-color);
-  word-break: break-all; /* Force wrap extremely long class names */
-  flex: 1;
-  min-width: 0;
-  white-space: normal;
-  line-height: 1.4;
-}
+.record-field-label { font-size: 0.65rem; font-weight: 700; color: var(--text-secondary); text-transform: none; letter-spacing: normal; }
 
 .btn-load-more {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  padding: 4px 12px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
+  background: var(--card-bg); border: 1px solid var(--border-color);
+  color: var(--text-primary); padding: 4px 12px; border-radius: 4px;
+  font-size: 0.7rem; font-weight: 600; cursor: pointer;
+  transition: all 0.15s ease; white-space: nowrap;
 }
+.btn-load-more:hover { background: var(--accent-color); border-color: var(--accent-color); color: #ffffff; }
 
-.btn-load-more:hover {
-  background: var(--accent-color);
-  border-color: var(--accent-color);
-  color: #ffffff;
-}
-
-.fade-in {
-  animation: fadeIn 0.2s ease-out;
-}
-
+/* ═══ Animations ═══ */
+.fade-in { animation: fadeIn 0.2s ease-out; }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.btn-add-both:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
 
-/* Enhanced Field Card Styles */
-.field-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.field-name-edit {
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--text-primary);
-  font-weight: 700;
-  font-size: 0.95rem;
-  padding: 4px 0;
-  outline: none;
-  transition: border-color 0.2s;
-  flex: 1;
-}
-
-.field-name-edit:focus {
-  border-bottom-color: var(--accent-color);
-}
-
-.field-actions {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.btn-icon {
-  background: var(--input-bg);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 1.1rem;
-  transition: all 0.2s;
-}
-
-.btn-icon:hover {
-  background: var(--accent-color);
-  color: white;
-  border-color: var(--accent-color);
-}
-
-.mode-toggle {
-  display: flex;
-  background: var(--input-bg);
-  padding: 2px;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  margin-left: auto;
-}
-
-.mode-btn {
-  padding: 4px 10px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.mode-btn.active {
-  background: var(--card-bg);
-  color: var(--accent-color);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-.field-preview-value {
-  margin: 12px 0 0 0;
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  border-left: 3px solid var(--accent-color);
-  padding-left: 10px;
-  line-height: 1.5;
-}
-
-.field-preview-value span {
-  color: var(--text-primary);
-  font-weight: 500;
-  word-break: break-all;
-  display: inline-block;
-  opacity: 0.8;
-}
-
-.field-card {
-  transition: transform 0.2s, box-shadow 0.2s;
-  position: relative;
-  overflow: hidden;
-}
-
-.field-card:hover {
-  transform: translateX(2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-.field-card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--accent-color);
-  opacity: 0.4;
-}
+.btn-add-both:hover { opacity: 0.9; transform: translateY(-1px); }

@@ -1,8 +1,17 @@
+/*
+ * src/popup/index.css
+ *
+ * Global baseline styles for the Extension Popup.
+ * Provides CSS resets, typography defaults (Vite-inspired), and 
+ * color-scheme support (light/dark mode).
+ */
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
+  /* Support for browser dark/light mode preferences */
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
@@ -65,6 +74,7 @@ button:focus-visible {
   text-align: center;
 }
 
+/* Specific overrides for light-mode browsers */
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

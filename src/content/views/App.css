@@ -1,9 +1,17 @@
+/*
+ * content/views/App.css
+ *
+ * Styling for the optional in-page UI components.
+ * This defines a floating, bottom-right container that stays fixed relative 
+ * to the viewport, ensuring it's always accessible to the user on the target page.
+ */
+
 .popup-container {
   position: fixed;
   right: 0;
   bottom: 0;
   margin: 1.25rem;
-  z-index: 100;
+  z-index: 100; /* Ensure it stays above most page elements */
   display: flex;
   align-items: flex-end;
   font-family: ui-sans-serif, system-ui, sans-serif;
@@ -11,6 +19,7 @@
   line-height: 1em;
 }
 
+/* Greeting message box styling */
 .popup-content {
   background-color: white;
   color: #1f2937;
@@ -25,6 +34,7 @@
   transition: opacity 300ms;
 }
 
+/* Floating button styling */
 .toggle-button {
   display: flex;
   justify-content: center;
@@ -47,6 +57,7 @@
   padding: 4px;
 }
 
+/* Utility classes for animations */
 .opacity-100 {
   opacity: 1;
 }
