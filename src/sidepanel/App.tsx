@@ -31,6 +31,7 @@ export default function App() {
   const [showExamples, setShowExamples] = useState(false)
   const [visibleCount, setVisibleCount] = useState(10)
   const [hoveredImage, setHoveredImage] = useState<{ url: string, x: number, y: number } | null>(null)
+  const [acceptDuplicates, setAcceptDuplicates] = useState(false)
 
   const generateFieldName = (selector: string, text: string): string => {
     const parts = selector.split(' > ')
@@ -135,22 +136,74 @@ export default function App() {
         payload: { fields, parentSelector }
       })
 
-      if (response?.results) {
+      if (!response) {
+        alert('Could not communicate with the page. Please wait for it to load completely or refresh it.')
+        return
+      }
+
+      if (response.results) {
+        const newMaxLength = Math.max(0, ...response.results.map((r: any) => r.values?.length || 0))
+        if (newMaxLength === 0) {
+          alert('Zero records found on this page matching your selections.')
+          return
+        }
+
+        let addedCount = 0
+
         setResults((prev: ExtractionResult[]) => {
-          if (prev.length === 0) return response.results
+          if (prev.length === 0) {
+            addedCount = newMaxLength
+            return response.results
+          }
           
+          const maxLength = Math.max(...prev.map(r => r.values.length))
+          const existingHashes = new Set<string>()
+          for (let i = 0; i < maxLength; i++) {
+            const hash = JSON.stringify(prev.map(r => r.values[i] || ''))
+            existingHashes.add(hash)
+          }
+
+          const validIndices: number[] = []
+          for (let i = 0; i < newMaxLength; i++) {
+            if (acceptDuplicates) {
+              validIndices.push(i)
+            } else {
+              const valuesArr = prev.map(p => {
+                const newRes = response.results.find((r: any) => r.id === p.id)
+                return newRes ? (newRes.values[i] || '') : ''
+              })
+              const hash = JSON.stringify(valuesArr)
+              if (!existingHashes.has(hash)) {
+                validIndices.push(i)
+                existingHashes.add(hash) // avoid duplicates within new batch as well
+              }
+            }
+          }
+
+          if (validIndices.length === 0) {
+            return prev
+          }
+
+          addedCount = validIndices.length
+
           return prev.map(p => {
             const newRes = response.results.find((r: ExtractionResult) => r.id === p.id)
             if (newRes) {
+              const filteredNewValues = validIndices.map(i => newRes.values[i] !== undefined ? newRes.values[i] : '')
               return {
                 ...p,
-                values: [...p.values, ...newRes.values]
+                values: [...p.values, ...filteredNewValues]
               }
             }
             return p
           })
         })
-        setShowExamples(true)
+        
+        if (addedCount === 0) {
+          alert('All extracted data from this page are already recorded (Duplicates omitted).')
+        } else {
+          setShowExamples(true)
+        }
       }
     } catch (err) {
       console.error('Xtractify: Extraction failed', err)
@@ -284,9 +337,20 @@ export default function App() {
 
         {fields.length > 0 && (
           <section className="extraction-section">
-            <button className="btn-secondary" onClick={extractData}>
-              Extract Data
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+                <input 
+                  type="checkbox" 
+                  checked={acceptDuplicates} 
+                  onChange={(e) => setAcceptDuplicates(e.target.checked)} 
+                  style={{ accentColor: 'var(--accent-color)', width: '14px', height: '14px', cursor: 'pointer' }}
+                />
+                Accept duplicate data
+              </label>
+              <button className="btn-secondary" onClick={extractData}>
+                Extract Data
+              </button>
+            </div>
 
             {results.length > 0 && (
               <div className="results-container fade-in">
