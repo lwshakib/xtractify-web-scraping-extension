@@ -136,9 +136,21 @@ export default function App() {
       })
 
       if (response?.results) {
-        setResults(response.results)
-        setShowExamples(false)
-        setVisibleCount(10)
+        setResults((prev: ExtractionResult[]) => {
+          if (prev.length === 0) return response.results
+          
+          return prev.map(p => {
+            const newRes = response.results.find((r: ExtractionResult) => r.id === p.id)
+            if (newRes) {
+              return {
+                ...p,
+                values: [...p.values, ...newRes.values]
+              }
+            }
+            return p
+          })
+        })
+        setShowExamples(true)
       }
     } catch (err) {
       console.error('Xtractify: Extraction failed', err)
@@ -283,9 +295,16 @@ export default function App() {
                     <span className="summary-label">Extracted</span>
                     <span className="summary-value">{totalRecords} records</span>
                   </div>
-                  <button className="btn-download-small" onClick={downloadCSV}>
-                    Download CSV
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button className="btn-download-small" onClick={() => {
+                      if (confirm('Are you sure you want to clear all extracted data?')) setResults([])
+                    }} style={{ background: 'var(--input-bg)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}>
+                      Clear
+                    </button>
+                    <button className="btn-download-small" onClick={downloadCSV}>
+                      Download CSV
+                    </button>
+                  </div>
                 </div>
 
                 <div className="examples-accordion">
