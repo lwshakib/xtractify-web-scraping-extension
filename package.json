@@ -1,7 +1,7 @@
 {
   "name": "xtractify-web-scraping-extension",
-  "displayName": "Xtractify",
-  "description": "An AI-powered web scraping extension that simplifies data extraction from any website.",
+  "displayName": "Xtractify Pro Scraper",
+  "description": "A powerful no-code Chrome extension for seamless web scraping. Point, click, deduplicate, and instantly export data to CSV or JSON.",
   "type": "module",
   "version": "1.0.0",
   "private": true,

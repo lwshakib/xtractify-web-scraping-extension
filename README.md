@@ -1,52 +1,81 @@
-# React + Vite + CRXJS
+<h1>
+  <img src="./public/logo.svg" width="40" align="left" alt="Xtractify Logo" /> 
+  Xtractify - Web Scraping Extension
+</h1>
 
-This template helps you quickly start developing Chrome extensions with React, TypeScript and Vite. It includes the CRXJS Vite plugin for seamless Chrome extension development.
+<p>
+  Xtractify is a powerful, AI-assisted Chrome Extension that simplifies web scraping. Easily extract text, links, and images from any website using an intuitive point-and-click interface, and export the structured data directly to CSV or JSON formats.
+</p>
 
 ## Features
 
-- React with TypeScript
-- TypeScript support
-- Vite build tool
-- CRXJS Vite plugin integration
-- Chrome extension manifest configuration
+- **Point & Click Selection**: Select "Item Containers" (like table rows or cards) and pick individual fields to extract.
+- **Deep Compatibility**: Supports extracting raw text, active hyperlinks (URLs), and image sources (including attributes like `alt` and `<picture>` formats).
+- **Data Deduplication**: Prevents you from pulling identical records by calculating data hashes automatically.
+- **Smart Formatting**: Extract URLs vs Texts dynamically as per your requirements natively within the Side panel.
+- **Instant Exports**: Effortlessly export captured metrics via built-in browser blob downloads (CSV & JSON)—no external servers required!
+- **React & Vite Built**: Modern, rapid, and fully hot-reloadable Developer Experience using the CRXJS plugin.
 
-## Quick Start
+## Application Workflow
 
-1. Install dependencies:
+Here is how data flows through our extension logically:
 
-```bash
-npm install
+```mermaid
+sequenceDiagram
+    participant User
+    participant SidePanel as Xtractify Side Panel
+    participant ContentScript as Web Page (Content Script)
+    participant Output as Downloads (CSV/JSON)
+
+    User->>SidePanel: Clicks "Select Fields"
+    SidePanel->>ContentScript: Injects Selection Handlers
+    User->>ContentScript: Clicks on Elements (Images, Text)
+    ContentScript-->>SidePanel: Returns Evaluated Data & Selectors
+    User->>SidePanel: Picks Extraction Modes (URL/Text, etc.)
+    User->>SidePanel: Clicks "Extract Data"
+    SidePanel->>ContentScript: Runs Headless Scraper Queries
+    ContentScript-->>SidePanel: Returns Array of Extracted Elements
+    SidePanel->>SidePanel: Deduplicates and Appends Results
+    User->>SidePanel: Clicks "Download CSV / JSON"
+    SidePanel->>Output: Serializes Data to Blob File
 ```
 
-2. Start development server:
+## Quick Start Development
 
-```bash
-npm run dev
-```
+1. Install all required dependencies:
+   ```bash
+   npm install
+   ```
 
-3. Open Chrome and navigate to `chrome://extensions/`, enable "Developer mode", and load the unpacked extension from the `dist` directory.
+2. Start the Vite development server (which enables Hot Module Replacement tailored for Extensions):
+   ```bash
+   npm run dev
+   ```
 
-4. Build for production:
+3. Load the Extension into Google Chrome:
+   - Go to `chrome://extensions/`
+   - Enable **"Developer mode"** in the top right corner.
+   - Choose **"Load unpacked"**.
+   - Navigate to the `dist` folder generated inside this repository.
+
+4. Pin the extension to access the Side Panel easily when navigating the web!
+
+## Building for Production
+
+Compile your source files strictly via TypeScript and generate a minified build:
 
 ```bash
 npm run build
 ```
+*(This produces an optimized deployment inside the `dist` folder alongside an archive zip output).*
 
-## Project Structure
+## Technologies Used
 
-- `src/popup/` - Extension popup UI
-- `src/content/` - Content scripts
-- `manifest.config.ts` - Chrome extension manifest configuration
+* **React 19**
+* **Vite**
+* **Typescript 5**
+* **CRXJS** (Vite Plugin specific for Manifest V3 extension loading)
 
-## Documentation
+## License
 
-- [React Documentation](https://reactjs.org/)
-- [Vite Documentation](https://vitejs.dev/)
-- [CRXJS Documentation](https://crxjs.dev/vite-plugin)
-
-## Chrome Extension Development Notes
-
-- Use `manifest.config.ts` to configure your extension
-- The CRXJS plugin automatically handles manifest generation
-- Content scripts should be placed in `src/content/`
-- Popup UI should be placed in `src/popup/`
+This project is licensed under the MIT License - see the LICENSE file for details.
