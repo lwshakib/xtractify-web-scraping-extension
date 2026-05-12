@@ -1,0 +1,31 @@
+{
+  "name": "xtractify-web-scraping-extension",
+  "displayName": "Xtractify Pro Scraper",
+  "description": "A powerful no-code Chrome extension for seamless web scraping. Point, click, deduplicate, and instantly export data to CSV or JSON.",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,html}\"",
+    "format-check": "prettier --check \"src/**/*.{ts,tsx,css,html}\""
+  },
+  "dependencies": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.4.0",
+    "@types/chrome": "^0.1.37",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "prettier": "^3.8.1",
+    "typescript": "~5.9.3",
+    "vite": "^8.0.0",
+    "vite-plugin-zip-pack": "^1.2.4"
+  }
+}
