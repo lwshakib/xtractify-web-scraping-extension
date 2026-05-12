@@ -9,9 +9,9 @@
  * quick-access tools directly on the target website without opening the sidepanel.
  */
 
-import Logo from '@/assets/crx.svg'
-import { useState } from 'react'
-import './App.css'
+import Logo from "@/assets/crx.svg"
+import { useState } from "react"
+import "./App.css"
 
 function App() {
   const [show, setShow] = useState(false)
@@ -21,7 +21,7 @@ function App() {
     <div className="popup-container">
       {/* Container for the greeting message, shown only when 'show' is true */}
       {show && (
-        <div className={`popup-content ${show ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`popup-content ${show ? "opacity-100" : "opacity-0"}`}>
           <h1>HELLO CRXJS</h1>
         </div>
       )}

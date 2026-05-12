@@ -40,7 +40,7 @@ export function getUniqueSelector(el: HTMLElement): string {
     current = current.parentElement as HTMLElement | null
   }
 
-  return path.join(' > ')
+  return path.join(" > ")
 }
 
 /**
@@ -59,20 +59,21 @@ export function getGeneralSelector(el: HTMLElement): string {
   // We traverse up to 5 levels to find a stable "container" or "pattern" selector.
   while (current && current.nodeType === Node.ELEMENT_NODE && depth < 5) {
     let part = current.nodeName.toLowerCase()
-    const hasClasses = current.className && typeof current.className === 'string'
+    const hasClasses =
+      current.className && typeof current.className === "string"
 
     if (hasClasses) {
       // Sanitize and include classes, excluding internal extension classes.
       const classes = current.className
         .split(/\s+/)
-        .filter((c) => c && !c.includes(':') && !c.includes('xtractify'))
+        .filter((c) => c && !c.includes(":") && !c.includes("xtractify"))
         .map((c) => `.${CSS.escape(c)}`)
-        .join('')
+        .join("")
       part += classes
     }
 
     path.unshift(part)
-    const selector = path.join(' > ')
+    const selector = path.join(" > ")
     const matches = document.querySelectorAll(selector)
 
     /**
@@ -82,7 +83,8 @@ export function getGeneralSelector(el: HTMLElement): string {
      * 2. Matches fewer than 200 items (to avoid overly broad selection like 'div').
      * 3. Isn't a generic/common HTML tag without classes (like a bare 'div' or 'p').
      */
-    const isGeneric = !hasClasses && ['div', 'span', 'p', 'li', 'a', 'td', 'tr'].includes(part)
+    const isGeneric =
+      !hasClasses && ["div", "span", "p", "li", "a", "td", "tr"].includes(part)
 
     if (matches.length > 1 && matches.length < 200 && !isGeneric) {
       break
@@ -100,5 +102,5 @@ export function getGeneralSelector(el: HTMLElement): string {
     depth++
   }
 
-  return path.join(' > ')
+  return path.join(" > ")
 }

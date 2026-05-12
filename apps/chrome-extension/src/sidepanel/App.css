@@ -84,10 +84,10 @@ body {
   background: var(--bg-color);
   color: var(--text-primary);
   font-family:
-    'Inter',
+    "Inter",
     -apple-system,
     BlinkMacSystemFont,
-    'Segoe UI',
+    "Segoe UI",
     Roboto,
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -261,7 +261,7 @@ body {
 
 /* Green accent bar on the left edge of each field card */
 .field-card::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -379,7 +379,7 @@ body {
 
 /* CSS selector display — monospace, muted, wrappable */
 .selector-text {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
   font-size: 0.65rem;
   color: var(--text-secondary);
   word-break: break-all;

@@ -21,7 +21,7 @@
  * Chrome Extension messaging API (chrome.runtime.onMessage).
  */
 
-import { getGeneralSelector } from './utils/selector'
+import { getGeneralSelector } from "./utils/selector"
 
 // ─── Global State ─────────────────────────────────────────────────────────────
 // These module-level variables track the current selection session.
@@ -34,7 +34,7 @@ let isSelecting = false
  * - 'field': Selecting a data field WITHIN a parent container.
  * - 'parent': Selecting the repeating parent container itself (e.g., a product card).
  */
-let selectionMode: 'field' | 'parent' = 'field'
+let selectionMode: "field" | "parent" = "field"
 
 /**
  * The CSS selector for the currently active parent container.
@@ -48,7 +48,7 @@ let activeParentSelector: string | null = null
 // Using a CSS class (instead of inline styles) prevents interference with
 // the page's existing inline styles and allows easy bulk removal.
 
-const highlightStyle = document.createElement('style')
+const highlightStyle = document.createElement("style")
 highlightStyle.textContent = `
   .xtractify-highlight {
     outline: 3px solid #10b981 !important;
@@ -83,12 +83,12 @@ function handleMouseOver(e: MouseEvent) {
   const target = e.target as HTMLElement
 
   // Clear previous highlights before computing new ones.
-  currentMatches.forEach((el) => el.classList.remove('xtractify-highlight'))
+  currentMatches.forEach((el) => el.classList.remove("xtractify-highlight"))
 
   const selector = getGeneralSelector(target)
   let matches: HTMLElement[] = []
 
-  if (selectionMode === 'field' && activeParentSelector) {
+  if (selectionMode === "field" && activeParentSelector) {
     // --- Scoped Field Selection ---
     // Find the parent container that wraps the hovered element.
     const parent = target.closest(activeParentSelector) as HTMLElement
@@ -100,7 +100,9 @@ function handleMouseOver(e: MouseEvent) {
 
       if (childIndex !== -1) {
         // Now replicate the selection across ALL parent containers at the same index.
-        const allParents = Array.from(document.querySelectorAll(activeParentSelector))
+        const allParents = Array.from(
+          document.querySelectorAll(activeParentSelector)
+        )
         allParents.forEach((p) => {
           const peers = p.querySelectorAll(selector)
           if (peers[childIndex]) {
@@ -116,7 +118,7 @@ function handleMouseOver(e: MouseEvent) {
   }
 
   // Performance guard: limit to 400 highlights to avoid DOM thrashing.
-  matches.slice(0, 400).forEach((el) => el.classList.add('xtractify-highlight'))
+  matches.slice(0, 400).forEach((el) => el.classList.add("xtractify-highlight"))
   currentMatches = matches
 }
 
@@ -128,7 +130,7 @@ function handleMouseOver(e: MouseEvent) {
 function handleMouseOut(e: MouseEvent) {
   if (!isSelecting) return
   if (e.relatedTarget === null) {
-    currentMatches.forEach((el) => el.classList.remove('xtractify-highlight'))
+    currentMatches.forEach((el) => el.classList.remove("xtractify-highlight"))
     currentMatches = []
   }
 }
@@ -158,16 +160,19 @@ function preventAll(e: Event) {
  * @param parentSelector The CSS selector of the parent container.
  * @returns A relative selector string (tagName + classes), or undefined if the element isn't inside a parent.
  */
-function getRelativeSelector(el: HTMLElement, parentSelector: string): string | undefined {
+function getRelativeSelector(
+  el: HTMLElement,
+  parentSelector: string
+): string | undefined {
   const parent = el.closest(parentSelector)
   if (!parent) return undefined
 
   const tagName = el.tagName.toLowerCase()
   // Filter out internal "xtractify-highlight" class to avoid polluting the selector.
   const classList = Array.from(el.classList)
-    .filter((c) => c !== 'xtractify-highlight')
+    .filter((c) => c !== "xtractify-highlight")
     .map((c) => `.${c}`)
-    .join('')
+    .join("")
 
   return `${tagName}${classList}`
 }
@@ -187,12 +192,18 @@ function getRelativeSelector(el: HTMLElement, parentSelector: string): string | 
  * @param maxDepth How many levels deep/up to search (default: 3).
  * @returns The found HTMLAnchorElement, or null.
  */
-function findNearbyLink(el: HTMLElement, maxDepth: number = 3): HTMLAnchorElement | null {
+function findNearbyLink(
+  el: HTMLElement,
+  maxDepth: number = 3
+): HTMLAnchorElement | null {
   // 1. Check self — is the element already a link?
   if (el instanceof HTMLAnchorElement && el.href) return el
 
   // 2. Check children — recursive depth-first search for nested links.
-  function searchChildren(parent: HTMLElement, currentDepth: number): HTMLAnchorElement | null {
+  function searchChildren(
+    parent: HTMLElement,
+    currentDepth: number
+  ): HTMLAnchorElement | null {
     if (currentDepth > maxDepth) return null
     for (const child of Array.from(parent.children)) {
       if (child instanceof HTMLAnchorElement && child.href) return child
@@ -208,7 +219,8 @@ function findNearbyLink(el: HTMLElement, maxDepth: number = 3): HTMLAnchorElemen
   let currentParent = el.parentElement
   let depth = 1
   while (currentParent && depth <= maxDepth) {
-    if (currentParent instanceof HTMLAnchorElement && currentParent.href) return currentParent
+    if (currentParent instanceof HTMLAnchorElement && currentParent.href)
+      return currentParent
     currentParent = currentParent.parentElement
     depth++
   }
@@ -233,16 +245,22 @@ function findNearbyLink(el: HTMLElement, maxDepth: number = 3): HTMLAnchorElemen
  * @param extractMode Whether to extract a 'url' or 'text' value.
  * @returns The extracted string value.
  */
-function extractElementValue(el: HTMLElement, extractMode: 'url' | 'text' = 'url'): string {
-  if (extractMode === 'url') {
+function extractElementValue(
+  el: HTMLElement,
+  extractMode: "url" | "text" = "url"
+): string {
+  if (extractMode === "url") {
     // --- URL Extraction: Images ---
     // Check if the element is (or contains) an <img>, and extract its best source.
-    const img = el instanceof HTMLImageElement ? el : el.closest('img') || el.querySelector('img')
+    const img =
+      el instanceof HTMLImageElement
+        ? el
+        : el.closest("img") || el.querySelector("img")
     if (img) {
       if (img.srcset) {
         // Parse srcset and pick the highest-resolution source.
         // srcset format: "url1 1x, url2 2x" or "url1 300w, url2 600w"
-        const sources = img.srcset.split(',').map((s) => s.trim().split(' '))
+        const sources = img.srcset.split(",").map((s) => s.trim().split(" "))
         const bestSource = sources.reduce((prev, curr) => {
           const prevVal = prev[1] ? parseInt(prev[1]) : 0
           const currVal = curr[1] ? parseInt(curr[1]) : 0
@@ -250,28 +268,28 @@ function extractElementValue(el: HTMLElement, extractMode: 'url' | 'text' = 'url
         })
         return bestSource[0]
       }
-      return img.src || ''
+      return img.src || ""
     }
 
     // --- URL Extraction: <picture> element ---
     if (el.parentElement instanceof HTMLPictureElement) {
-      const source = el.parentElement.querySelector('source')
-      if (source?.srcset) return source.srcset.split(',')[0].split(' ')[0]
+      const source = el.parentElement.querySelector("source")
+      if (source?.srcset) return source.srcset.split(",")[0].split(" ")[0]
     }
 
     // --- URL Extraction: Anchor links ---
-    const anchor = el.closest('a')
+    const anchor = el.closest("a")
     if (anchor) return anchor.href
   }
 
   // --- Text Extraction ---
   // For images, return alt text instead of trying to get innerText.
   if (el instanceof HTMLImageElement) {
-    return el.alt || ''
+    return el.alt || ""
   }
 
   if (el.parentElement instanceof HTMLPictureElement) {
-    return el.parentElement.querySelector('img')?.alt || ''
+    return el.parentElement.querySelector("img")?.alt || ""
   }
 
   return el.innerText.trim()
@@ -300,34 +318,35 @@ function handleClick(e: MouseEvent) {
   const selector = getGeneralSelector(target)
 
   // Determine the semantic type of the clicked element for UI and extraction purposes.
-  let elementType: 'image' | 'link' | 'text' = 'text'
-  let previewUrl = ''
-  let previewText = ''
+  let elementType: "image" | "link" | "text" = "text"
+  let previewUrl = ""
+  let previewText = ""
 
   const anchor = findNearbyLink(target, 3)
-  const img = target.closest('img') || target.closest('picture')?.querySelector('img')
+  const img =
+    target.closest("img") || target.closest("picture")?.querySelector("img")
 
   if (img) {
-    elementType = 'image'
-    previewUrl = extractElementValue(img, 'url')
-    previewText = extractElementValue(img, 'text')
+    elementType = "image"
+    previewUrl = extractElementValue(img, "url")
+    previewText = extractElementValue(img, "text")
   } else if (anchor) {
-    elementType = 'link'
+    elementType = "link"
     previewUrl = anchor.href
     previewText = target.innerText.trim() || anchor.innerText.trim()
   } else {
-    elementType = 'text'
+    elementType = "text"
     const val = target.innerText.trim()
-    previewText = val.substring(0, 50) + (val.length > 50 ? '...' : '')
+    previewText = val.substring(0, 50) + (val.length > 50 ? "..." : "")
     previewUrl = previewText
   }
 
-  if (selectionMode === 'parent') {
+  if (selectionMode === "parent") {
     // --- Parent Container Selection ---
     // Send the selector and how many containers match it across the page.
     const elements = document.querySelectorAll(selector)
     chrome.runtime.sendMessage({
-      type: 'PARENT_SELECTED',
+      type: "PARENT_SELECTED",
       payload: {
         selector,
         matchCount: elements.length,
@@ -342,7 +361,9 @@ function handleClick(e: MouseEvent) {
     if (activeParentSelector) {
       // Compute the field's position RELATIVE to the parent container.
       const parent = target.closest(activeParentSelector) as HTMLElement
-      const allContainers = Array.from(document.querySelectorAll(activeParentSelector))
+      const allContainers = Array.from(
+        document.querySelectorAll(activeParentSelector)
+      )
 
       if (parent) {
         relativeSelector = getRelativeSelector(target, activeParentSelector)
@@ -365,7 +386,7 @@ function handleClick(e: MouseEvent) {
     }
 
     chrome.runtime.sendMessage({
-      type: 'ELEMENT_SELECTED',
+      type: "ELEMENT_SELECTED",
       payload: {
         selector,
         relativeSelector,
@@ -407,67 +428,79 @@ function handleClick(e: MouseEvent) {
  *   Returns an array of { id, name, values[] } objects.
  */
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message.type === 'PING') {
-    sendResponse({ status: 'PONG' })
+  if (message.type === "PING") {
+    sendResponse({ status: "PONG" })
     return true
   }
 
-  if (message.type === 'START_SELECTION' || message.type === 'START_PARENT_SELECTION') {
+  if (
+    message.type === "START_SELECTION" ||
+    message.type === "START_PARENT_SELECTION"
+  ) {
     isSelecting = true
-    selectionMode = message.type === 'START_PARENT_SELECTION' ? 'parent' : 'field'
+    selectionMode =
+      message.type === "START_PARENT_SELECTION" ? "parent" : "field"
     activeParentSelector = message.payload?.parentSelector || null
 
     // Register event listeners. Click-related events use `capture: true` to intercept
     // BEFORE the page's own handlers, preventing navigation and other side effects.
-    document.addEventListener('mouseover', handleMouseOver)
-    document.addEventListener('mouseout', handleMouseOut)
-    document.addEventListener('click', handleClick, true)
-    document.addEventListener('mousedown', preventAll, true)
-    document.addEventListener('mouseup', preventAll, true)
-    document.addEventListener('pointerdown', preventAll, true)
-    document.addEventListener('pointerup', preventAll, true)
-    sendResponse({ status: 'Selection started' })
-  } else if (message.type === 'STOP_SELECTION') {
+    document.addEventListener("mouseover", handleMouseOver)
+    document.addEventListener("mouseout", handleMouseOut)
+    document.addEventListener("click", handleClick, true)
+    document.addEventListener("mousedown", preventAll, true)
+    document.addEventListener("mouseup", preventAll, true)
+    document.addEventListener("pointerdown", preventAll, true)
+    document.addEventListener("pointerup", preventAll, true)
+    sendResponse({ status: "Selection started" })
+  } else if (message.type === "STOP_SELECTION") {
     isSelecting = false
     // Remove all selection-mode event listeners.
-    document.removeEventListener('mouseover', handleMouseOver)
-    document.removeEventListener('mouseout', handleMouseOut)
-    document.removeEventListener('click', handleClick, true)
-    document.removeEventListener('mousedown', preventAll, true)
-    document.removeEventListener('mouseup', preventAll, true)
-    document.removeEventListener('pointerdown', preventAll, true)
-    document.removeEventListener('pointerup', preventAll, true)
+    document.removeEventListener("mouseover", handleMouseOver)
+    document.removeEventListener("mouseout", handleMouseOut)
+    document.removeEventListener("click", handleClick, true)
+    document.removeEventListener("mousedown", preventAll, true)
+    document.removeEventListener("mouseup", preventAll, true)
+    document.removeEventListener("pointerdown", preventAll, true)
+    document.removeEventListener("pointerup", preventAll, true)
     // Clean up any remaining visual highlights.
-    currentMatches.forEach((el) => el.classList.remove('xtractify-highlight'))
+    currentMatches.forEach((el) => el.classList.remove("xtractify-highlight"))
     currentMatches = []
-    sendResponse({ status: 'Selection stopped' })
-  } else if (message.type === 'EXTRACT_DATA') {
+    sendResponse({ status: "Selection stopped" })
+  } else if (message.type === "EXTRACT_DATA") {
     // --- Data Extraction ---
     const { fields, parentSelector } = message.payload
 
     if (parentSelector) {
       // Scoped extraction: iterate over each parent container and extract per-row values.
-      const parents = Array.from(document.querySelectorAll(parentSelector)) as HTMLElement[]
+      const parents = Array.from(
+        document.querySelectorAll(parentSelector)
+      ) as HTMLElement[]
       const results = fields.map((field: any) => ({
         id: field.id,
         name: field.name,
         values: parents.map((p) => {
           // Use relativeSelector (scoped to parent) if available, fallback to global selector.
-          const matches = p.querySelectorAll(field.relativeSelector || field.selector)
+          const matches = p.querySelectorAll(
+            field.relativeSelector || field.selector
+          )
           // Pick the element at the same childIndex that was recorded during selection.
           const el = matches[field.childIndex || 0] as HTMLElement
-          return el ? extractElementValue(el, field.extractMode || 'url') : ''
+          return el ? extractElementValue(el, field.extractMode || "url") : ""
         }),
       }))
       sendResponse({ results })
     } else {
       // Global extraction: query the entire document for each field's selector.
       const results = fields.map((field: any) => {
-        const elements = Array.from(document.querySelectorAll(field.selector)) as HTMLElement[]
+        const elements = Array.from(
+          document.querySelectorAll(field.selector)
+        ) as HTMLElement[]
         return {
           id: field.id,
           name: field.name,
-          values: elements.map((el) => extractElementValue(el, field.extractMode || 'url')),
+          values: elements.map((el) =>
+            extractElementValue(el, field.extractMode || "url")
+          ),
         }
       })
       sendResponse({ results })
@@ -475,4 +508,4 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
 })
 
-console.log('[Xtractify] Content script loaded.')
+console.log("[Xtractify] Content script loaded.")

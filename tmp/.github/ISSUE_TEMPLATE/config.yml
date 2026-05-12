@@ -1,8 +1,0 @@
-blank_issues_enabled: true
-contact_links:
-  - name: Read the docs (README)
-    url: https://github.com/lwshakib/xtractify-web-scraping-extension#readme
-    about: Project overview, features, and dev setup.
-  - name: Contributing guide
-    url: https://github.com/lwshakib/xtractify-web-scraping-extension/blob/main/CONTRIBUTING.md
-    about: How to run, format, and submit changes.

@@ -8,7 +8,7 @@
  * but is not part of the core scraping logic.
  */
 
-import { useState } from 'react'
+import { useState } from "react"
 
 export default function HelloWorld(props: { msg: string }) {
   const [count, setCount] = useState(0)
@@ -23,19 +23,26 @@ export default function HelloWorld(props: { msg: string }) {
         </button>
         <p>
           Edit
-          <code>src/components/HelloWorld.tsx</code> to test HMR (Hot Module Replacement)
+          <code>src/components/HelloWorld.tsx</code> to test HMR (Hot Module
+          Replacement)
         </p>
       </div>
 
       <p>
         Check out
-        <a href="https://github.com/crxjs/create-crxjs" target="_blank" rel="noreferrer">
+        <a
+          href="https://github.com/crxjs/create-crxjs"
+          target="_blank"
+          rel="noreferrer"
+        >
           create-crxjs
         </a>
         , the official starter for CRXJS.
       </p>
 
-      <p className="read-the-docs">Click on the Vite, React and CRXJS logos to learn more.</p>
+      <p className="read-the-docs">
+        Click on the Vite, React and CRXJS logos to learn more.
+      </p>
     </>
   )
 }
