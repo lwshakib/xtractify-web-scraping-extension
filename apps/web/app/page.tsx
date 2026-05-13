@@ -27,25 +27,25 @@ const Navbar = () => (
     className="mx-auto flex max-w-7xl items-center justify-between px-8 py-6"
   >
     <div className="flex items-center gap-2">
-      <div className="bg-sage font-display flex h-8 w-8 items-center justify-center rounded-lg font-bold text-white">
+      <div className="bg-sage font-display flex h-8 w-8 items-center justify-center rounded-lg font-bold text-primary-foreground">
         X
       </div>
-      <span className="font-display text-xl font-semibold tracking-tight">
+      <span className="font-display text-xl font-semibold tracking-tight text-foreground">
         Xtractify
       </span>
     </div>
-    <div className="hidden items-center gap-8 text-sm font-medium text-black/60 md:flex">
-      <a href="#features" className="transition-colors hover:text-black">
+    <div className="hidden items-center gap-8 text-sm font-medium text-foreground/60 md:flex">
+      <a href="#features" className="transition-colors hover:text-foreground">
         Features
       </a>
-      <a href="#pricing" className="transition-colors hover:text-black">
+      <a href="#pricing" className="transition-colors hover:text-foreground">
         Pricing
       </a>
-      <a href="#docs" className="transition-colors hover:text-black">
+      <a href="#docs" className="transition-colors hover:text-foreground">
         Documentation
       </a>
     </div>
-    <button className="rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-black/10 transition-all hover:bg-black/80">
+    <button className="rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background shadow-lg shadow-foreground/10 transition-all hover:bg-foreground/80">
       Add to Chrome
     </button>
   </motion.nav>
@@ -74,11 +74,11 @@ const BentoItem = ({
     className={`glass-card group flex flex-col justify-between rounded-[2rem] p-8 transition-all duration-500 hover:border-sage/40 hover:shadow-xl hover:shadow-sage/5 ${className}`}
   >
     <div>
-      <div className="bg-warm-grey-dark mb-6 flex h-12 w-12 items-center justify-center rounded-2xl text-sage transition-all duration-500 group-hover:bg-sage group-hover:text-white">
+      <div className="bg-warm-grey-dark mb-6 flex h-12 w-12 items-center justify-center rounded-2xl text-sage transition-all duration-500 group-hover:bg-sage group-hover:text-primary-foreground">
         <Icon size={24} />
       </div>
-      <h3 className="font-display mb-2 text-xl font-semibold">{title}</h3>
-      <p className="text-black/50 text-sm leading-relaxed max-w-[280px]">
+      <h3 className="font-display mb-2 text-xl font-semibold text-foreground">{title}</h3>
+      <p className="text-foreground/50 text-sm leading-relaxed max-w-[280px]">
         {description}
       </p>
     </div>
@@ -143,7 +143,7 @@ const FloatingIcon = () => (
         opacity: [0.1, 0.2, 0.1],
       }}
       transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-      className="absolute -bottom-8 left-1/2 h-8 w-48 -translate-x-1/2 rounded-full bg-black blur-2xl"
+      className="absolute -bottom-8 left-1/2 h-8 w-48 -translate-x-1/2 rounded-full bg-foreground blur-2xl"
     />
   </div>
 )
@@ -164,17 +164,17 @@ export default function LandingPage() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
           >
-            <h1 className="font-display mb-8 mx-auto max-w-4xl text-6xl font-medium tracking-tight leading-[0.95] md:text-8xl">
+            <h1 className="font-display mb-8 mx-auto max-w-4xl text-6xl font-medium tracking-tight leading-[0.95] text-foreground md:text-8xl">
               Xtractify: Extract Web Data{" "}
               <span className="text-sage italic">Effortlessly</span>
             </h1>
-            <p className="text-black/40 mx-auto mb-12 max-w-2xl text-lg font-medium md:text-xl">
+            <p className="text-foreground/40 mx-auto mb-12 max-w-2xl text-lg font-medium md:text-xl">
               The premium Chrome extension for high-fidelity data scraping. Turn
               any website into a structured database in seconds.
             </p>
 
             <div className="flex flex-col items-center gap-6">
-              <button className="shadow-black/20 group relative flex items-center gap-3 rounded-full bg-black px-10 py-5 text-lg font-semibold text-white shadow-2xl transition-all hover:bg-black/90 active:scale-95">
+              <button className="shadow-foreground/20 group relative flex items-center gap-3 rounded-full bg-foreground px-10 py-5 text-lg font-semibold text-background shadow-2xl transition-all hover:bg-foreground/90 active:scale-95">
                 <Globe
                   size={22}
                   className="transition-transform group-hover:rotate-12"
@@ -186,7 +186,7 @@ export default function LandingPage() {
                   className="bg-sage absolute bottom-0 left-0 h-1 rounded-full"
                 />
               </button>
-              <button className="text-black/40 group flex items-center gap-1 text-sm font-semibold transition-colors hover:text-black">
+              <button className="text-foreground/40 group flex items-center gap-1 text-sm font-semibold transition-colors hover:text-foreground">
                 Watch demo{" "}
                 <ArrowRight
                   size={14}
@@ -297,13 +297,13 @@ export default function LandingPage() {
                 ].map((item, i) => (
                   <div
                     key={i}
-                    className={`flex items-center gap-3 rounded-xl border p-3 ${item.active ? "border-sage bg-sage/5" : "border-black/5"}`}
+                    className={`flex items-center gap-3 rounded-xl border p-3 ${item.active ? "border-sage bg-sage/5" : "border-foreground/5"}`}
                   >
                     <div
-                      className={`h-2 w-2 rounded-full ${item.active ? "bg-sage animate-pulse" : "bg-black/10"}`}
+                      className={`h-2 w-2 rounded-full ${item.active ? "bg-sage animate-pulse" : "bg-foreground/10"}`}
                     />
                     <span
-                      className={`font-mono text-xs font-medium ${item.active ? "text-sage" : "text-black/30"}`}
+                      className={`font-mono text-xs font-medium ${item.active ? "text-sage" : "text-foreground/30"}`}
                     >
                       {item.text}
                     </span>
@@ -352,7 +352,7 @@ export default function LandingPage() {
                 </motion.div>
                 <div className="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-4 p-4 opacity-10">
                   {Array.from({ length: 16 }).map((_, i) => (
-                    <div key={i} className="rounded-lg border border-black" />
+                    <div key={i} className="rounded-lg border border-foreground" />
                   ))}
                 </div>
               </div>
@@ -370,11 +370,11 @@ export default function LandingPage() {
                   {[0, 1, 2, 3].map((i) => (
                     <div
                       key={i}
-                      className="bg-warm-grey-dark inline-block h-10 w-10 rounded-full ring-2 ring-white"
+                      className="bg-warm-grey-dark inline-block h-10 w-10 rounded-full ring-2 ring-background"
                     />
                   ))}
                 </div>
-                <span className="text-black/30 text-xs font-medium">
+                <span className="text-foreground/30 text-xs font-medium">
                   + 42,000 synchronized users
                 </span>
               </div>
@@ -391,8 +391,8 @@ export default function LandingPage() {
                 {[0, 1].map((i) => (
                   <div key={i} className="flex gap-2">
                     <div className="bg-sage/10 h-6 w-16 shrink-0 rounded" />
-                    <div className="h-6 flex-1 rounded bg-black/5" />
-                    <div className="h-6 w-10 rounded bg-black/5" />
+                    <div className="h-6 flex-1 rounded bg-foreground/5" />
+                    <div className="h-6 w-10 rounded bg-foreground/5" />
                   </div>
                 ))}
               </div>
@@ -406,7 +406,7 @@ export default function LandingPage() {
             <span className="text-sage mb-6 block text-xs font-bold uppercase tracking-widest">
               Why Xtractify?
             </span>
-            <h2 className="font-display mb-8 text-5xl font-medium tracking-tight">
+            <h2 className="font-display mb-8 text-5xl font-medium tracking-tight text-foreground">
               Built for professionals who value their time.
             </h2>
             <div className="space-y-6">
@@ -429,8 +429,8 @@ export default function LandingPage() {
                     <CheckCircle2 size={18} className="text-sage" />
                   </div>
                   <div>
-                    <h4 className="font-semibold">{item.title}</h4>
-                    <p className="text-black/40 text-sm">{item.desc}</p>
+                    <h4 className="font-semibold text-foreground">{item.title}</h4>
+                    <p className="text-foreground/40 text-sm">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -440,22 +440,22 @@ export default function LandingPage() {
             <div className="glass-card flex aspect-square flex-col justify-center gap-8 overflow-hidden rounded-[3rem] p-12 relative">
               <div className="bg-terracotta/5 absolute -top-20 -right-20 h-64 w-64 rounded-full blur-3xl" />
               <div className="flex items-center gap-6">
-                <div className="bg-sage shadow-sage/20 flex h-16 w-16 items-center justify-center rounded-2xl text-white shadow-lg">
+                <div className="bg-sage shadow-sage/20 flex h-16 w-16 items-center justify-center rounded-2xl text-primary-foreground shadow-lg">
                   <Zap size={32} />
                 </div>
                 <div>
-                  <div className="font-display text-3xl font-bold">12.5x</div>
-                  <div className="text-black/40 text-sm font-medium">
+                  <div className="font-display text-3xl font-bold text-foreground">12.5x</div>
+                  <div className="text-foreground/40 text-sm font-medium">
                     Faster than manual copying
                   </div>
                 </div>
               </div>
-              <div className="h-px w-full bg-black/5" />
+              <div className="h-px w-full bg-foreground/5" />
               <div className="space-y-4">
-                <div className="text-black/60 text-sm font-semibold uppercase tracking-wider">
+                <div className="text-foreground/60 text-sm font-semibold uppercase tracking-wider">
                   Scraping Logic
                 </div>
-                <div className="text-black/40 font-mono text-xs leading-relaxed">
+                <div className="text-foreground/40 font-mono text-xs leading-relaxed">
                   {
                     "const data = xtractify.query('article').map(node => ({\n  title: node.text(),\n  price: node.find('.price').val()\n}));"
                   }
@@ -494,14 +494,14 @@ export default function LandingPage() {
       <footer className="mx-auto flex max-w-7xl flex-col justify-between gap-12 px-8 py-20 border-t border-black/5 md:flex-row">
         <div className="max-w-sm">
           <div className="mb-6 flex items-center gap-2">
-            <div className="bg-sage font-display flex h-8 w-8 items-center justify-center rounded-lg font-bold text-white">
+            <div className="bg-sage font-display flex h-8 w-8 items-center justify-center rounded-lg font-bold text-primary-foreground">
               X
             </div>
-            <span className="font-display text-xl font-semibold tracking-tight">
+            <span className="font-display text-xl font-semibold tracking-tight text-foreground">
               Xtractify
             </span>
           </div>
-          <p className="text-black/40 text-sm leading-relaxed mb-8">
+          <p className="text-foreground/40 text-sm leading-relaxed mb-8">
             The world's most advanced web scraping tool. Built for humans,
             powered by intelligence.
           </p>
@@ -509,7 +509,7 @@ export default function LandingPage() {
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="h-10 w-10 cursor-pointer rounded-full bg-black/5 transition-colors hover:bg-sage/10"
+                className="h-10 w-10 cursor-pointer rounded-full bg-foreground/5 transition-colors hover:bg-sage/10"
               />
             ))}
           </div>
@@ -528,13 +528,13 @@ export default function LandingPage() {
             },
           ].map((col, i) => (
             <div key={i}>
-              <h4 className="font-display mb-6 font-semibold">{col.title}</h4>
+              <h4 className="font-display mb-6 font-semibold text-foreground">{col.title}</h4>
               <ul className="space-y-4">
                 {col.links.map((link, j) => (
                   <li key={j}>
                     <a
                       href="#"
-                      className="text-black/40 transition-colors hover:text-sage text-sm"
+                      className="text-foreground/40 transition-colors hover:text-sage text-sm"
                     >
                       {link}
                     </a>
@@ -546,7 +546,7 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      <div className="py-10 text-center text-xs font-medium text-black/20 uppercase tracking-widest">
+      <div className="py-10 text-center text-xs font-medium text-foreground/20 uppercase tracking-widest">
         © 2026 Xtractify Inc. Designed with intention.
       </div>
     </div>
