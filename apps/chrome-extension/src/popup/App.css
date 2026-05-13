@@ -1,72 +1,54 @@
-/*
- * popup/App.css — Popup Stylesheet
- *
- * Styles for the extension popup (the small window that appears when
- * clicking the extension icon in some configurations). This is the default
- * CRXJS scaffold styling and is NOT used by the main Xtractify sidepanel UI.
- *
- * Contains:
- * - Root layout with centered content
- * - Logo styling with hover glow effects
- * - Spin animation for the React logo
- * - Card and documentation link styles
- */
-
-/* --- Root Layout --- */
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.popup-shell {
+  width: 100%;
+  max-width: 360px;
+  padding: 16px;
 }
 
-/* --- Logo Styles ---
- * Each logo is displayed large (6em) with padding and a hover glow effect.
- * The `will-change: filter` hint tells the browser to optimize for the
- * drop-shadow transition that fires on hover.
- */
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa); /* React brand blue */
-}
-.logo.crx:hover {
-  filter: drop-shadow(0 0 2em #f2bae4aa); /* CRXJS brand pink */
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
-/* --- Logo Spin Animation ---
- * Only applies when the user has no motion-reduction preference.
- * Targets the React logo (2nd anchor's child) for a smooth infinite rotation.
- */
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.brand-logo {
+  width: 26px;
+  height: 26px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.brand-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
-/* --- Card & Documentation ---
- * Simple padding for card content areas and muted text for "read the docs" hints.
- */
-.card {
-  padding: 2em;
+.brand-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 
-.read-the-docs {
-  color: #888;
+.heading {
+  margin: 0 0 8px;
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.description {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.status-chip {
+  margin-top: 12px;
+  display: inline-flex;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--accent-color);
+  color: var(--accent-color);
+  font-size: 12px;
+  font-weight: 600;
 }

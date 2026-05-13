@@ -32,29 +32,29 @@
  */
 :root {
   /* Common (mode-independent) */
-  --accent-color: #10b981; /* Emerald-500 — primary brand / success color */
-  --accent-hover: #059669; /* Emerald-600 — hover state for accent */
+  --accent-color: #81a18b; /* Website sage color */
+  --accent-hover: #6f8f79; /* Website sage hover tone */
   --danger-color: #ef4444; /* Red-500 — destructive actions, active selection */
   --warning-color: #f59e0b; /* Amber-500 — high match count warnings */
 
   /* Light Mode (default) */
-  --bg-color: #fafafa; /* Zinc-50 — page background */
+  --bg-color: #f6f8f6; /* Brand-tinted light background */
   --card-bg: #ffffff; /* Card/panel surface */
   --text-primary: #09090b; /* Zinc-950 — headings, primary text */
-  --text-secondary: #52525b; /* Zinc-600 — labels, muted text */
+  --text-secondary: #596262; /* Brand-muted text */
   --border-color: rgba(0, 0, 0, 0.08); /* Subtle borders */
-  --input-bg: #f4f4f5; /* Zinc-100 — input backgrounds, badges */
+  --input-bg: #eef2ef; /* Brand-tinted muted surface */
 }
 
 /* Dark mode overrides — detected automatically via system preference */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-color: #09090b; /* Zinc-950 */
-    --card-bg: #18181b; /* Zinc-900 */
-    --text-primary: #f8fafc;
-    --text-secondary: #a1a1aa; /* Zinc-400 */
+    --bg-color: #0e1210; /* Brand-tinted dark background */
+    --card-bg: #1a211c; /* Brand-tinted dark surface */
+    --text-primary: #f5f7f6;
+    --text-secondary: #a7b3ac;
     --border-color: rgba(255, 255, 255, 0.08);
-    --input-bg: #27272a; /* Zinc-800 */
+    --input-bg: #242d27;
   }
 }
 
