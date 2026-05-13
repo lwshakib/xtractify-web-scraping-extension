@@ -28,6 +28,28 @@ flowchart TD
   EXT -->|brand + styles alignment| UI
 ```
 
+## How it works
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant SidePanel as Xtractify Side Panel
+    participant ContentScript as Web Page (Content Script)
+    participant Output as Downloads (CSV/JSON)
+
+    User->>SidePanel: Clicks "Select Fields"
+    SidePanel->>ContentScript: Injects Selection Handlers
+    User->>ContentScript: Clicks on Elements (Images, Text)
+    ContentScript-->>SidePanel: Returns Evaluated Data & Selectors
+    User->>SidePanel: Picks Extraction Modes (URL/Text, etc.)
+    User->>SidePanel: Clicks "Extract Data"
+    SidePanel->>ContentScript: Runs Headless Scraper Queries
+    ContentScript-->>SidePanel: Returns Array of Extracted Elements
+    SidePanel->>SidePanel: Deduplicates and Appends Results
+    User->>SidePanel: Clicks "Download CSV / JSON"
+    SidePanel->>Output: Serializes Data to Blob File
+```
+
 ## What you get
 
 - **No-code field selection**: pick a repeating container and click fields on the page.
