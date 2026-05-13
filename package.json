@@ -1,6 +1,6 @@
 {
   "name": "xtractify-web-scraping-extension",
-  "version": "0.0.1",
+  "version": "1.0.3",
   "private": true,
   "scripts": {
     "build": "turbo build",

@@ -10,6 +10,7 @@ import {
   Sun,
 } from "lucide-react"
 import Logo from "@/components/logo"
+import { EXTENSION_DOWNLOAD_URL } from "@/lib/constants"
 
 const steps = [
   "Download the latest extension ZIP file.",
@@ -63,8 +64,9 @@ export default function LandingPage() {
           <div className="flex flex-wrap items-center gap-3">
             <a
               id="download"
-              href="/xtractify-extension.zip"
-              download
+              href={EXTENSION_DOWNLOAD_URL}
+              target="_blank"
+              rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-background shadow-sm transition hover:opacity-90"
             >
               <Download className="h-4 w-4" />
