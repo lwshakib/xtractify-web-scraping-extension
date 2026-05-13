@@ -3,7 +3,7 @@
   "displayName": "Xtractify Pro Scraper",
   "description": "A powerful no-code Chrome extension for seamless web scraping. Point, click, deduplicate, and instantly export data to CSV or JSON.",
   "type": "module",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "private": true,
   "scripts": {
     "dev": "vite",
