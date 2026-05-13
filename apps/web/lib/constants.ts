@@ -4,7 +4,7 @@ export const EXTENSION_VERSION = appVersion
 
 export const EXTENSION_RELEASE_TAG = `v${EXTENSION_VERSION}`
 
-export const EXTENSION_ZIP_BASENAME = "xtractify"
+export const EXTENSION_ZIP_BASENAME = "xtractify-web-scraping-extension"
 
 export const EXTENSION_ZIP_FILENAME = `${EXTENSION_ZIP_BASENAME}-${EXTENSION_VERSION}.zip`
 
