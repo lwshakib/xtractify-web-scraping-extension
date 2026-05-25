@@ -17,5 +17,7 @@ chrome.runtime.onInstalled.addListener(() => {
   // manually open the side panel from the browser's side panel menu.
   chrome.sidePanel
     .setPanelBehavior({ openPanelOnActionClick: true })
-    .catch((error) => console.error(error))
+    .catch((error) =>
+      console.error("Failed to set side panel behavior:", error)
+    )
 })
