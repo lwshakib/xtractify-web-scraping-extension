@@ -675,19 +675,26 @@ export default function App() {
                                     key={r.id}
                                     onMouseEnter={(e) => {
                                       const val = doc[r.name]
-                                      if (
-                                        typeof val === "string" &&
-                                        (val.startsWith("http") ||
-                                          val.startsWith("data:image/"))
-                                      ) {
-                                        const rect = (
-                                          e.target as HTMLElement
-                                        ).getBoundingClientRect()
-                                        setHoveredImage({
-                                          url: val,
-                                          x: rect.left + rect.width / 2,
-                                          y: rect.top,
-                                        })
+                                      if (typeof val === "string") {
+                                        try {
+                                          const url = new URL(val)
+                                          if (
+                                            url.protocol === "http:" ||
+                                            url.protocol === "https:" ||
+                                            url.protocol === "data:"
+                                          ) {
+                                            const rect = (
+                                              e.target as HTMLElement
+                                            ).getBoundingClientRect()
+                                            setHoveredImage({
+                                              url: val,
+                                              x: rect.left + rect.width / 2,
+                                              y: rect.top,
+                                            })
+                                          }
+                                        } catch {
+                                          // Invalid URL, do nothing
+                                        }
                                       }
                                     }}
                                     onMouseLeave={() => setHoveredImage(null)}
