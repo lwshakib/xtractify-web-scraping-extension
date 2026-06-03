@@ -152,7 +152,7 @@ export default function App() {
       }
       await chrome.scripting.executeScript({
         target: { tabId },
-        files: ["src/content/main.tsx"],
+        files: ["assets/main.tsx-CuUtcrbC.js"],
       })
       return await chrome.tabs.sendMessage(tabId, message)
     } catch (err: any) {
